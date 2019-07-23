@@ -6,23 +6,29 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     //当前充电桩id
-    chargeId: 0,
+    chargingId: 0,
     //取消充电的弹出状态
     cancelChargePop: false,
     //充电桩故障弹出状态
     chargeBreakPop: false,
     //充值金额
     chargeMoney: 0,
+    //支付方式
+    payType:0,//0微信，1支付宝
     //已充电时长
     chargeTime: '1小时5分钟',
     //预计时间
-    estimateTime: '',
+    useTime: Number,
     //已充电百分数
     chargePercent: 43,
     //设备编号
-    deviceNum: 'CDZ001',
-    //充电桩SN码
-    deviceSN: '98CC4D200056'
+    deviceNum: '',
+    //第一次扫描充电桩SN码
+    deviceSN: '98CC4D200056',
+    //用户id
+    userId:Number,
+    //订单编号
+    orderNum:''
   },
   mutations: {
     getEstimate(state) {

@@ -2,10 +2,10 @@
   <div class="paySuccess">
     <div class="sucBox">
       <div class="tips"><i></i>支付成功！</div>
-      <div class="detail">您已成功支付1.5元</div>
+      <div class="detail">您已成功支付{{ this.$store.state.chargeMoney }}元</div>
       <div class="payWay">
         <div class="left">支付方式</div>
-        <div class="right">微信支付</div>
+        <div class="right">{{ this.$store.statepayType===0?'微信支付':'支付宝支付' }}</div>
       </div>
     </div>
     <div class="startCharge">请插上电源开始充电</div>

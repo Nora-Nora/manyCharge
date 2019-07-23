@@ -8,7 +8,7 @@
     </div>
     <div class="moneyList">
       <ul>
-        <li v-for="(item,index) in chargetype" :class="{on:selectNum==index+1}" @click="selectMoney(item),chargeTime(selectNum)">{{ item }}元</li>
+        <li v-for="(item) in chargetype" :class="{on:selectNum==item}" @click="chargeTime(item)">{{ item }}元</li>
       </ul>
     </div>
     <div class="time">
@@ -30,13 +30,15 @@
       }
     },
     methods:{
-      selectMoney(num){
-        this.selectNum = num;
-      },
       chargeTime(moneyNum){
         if(moneyNum>0){
+          //预计充电时长（单位：分）
+          let useTime = (60*moneyNum)/0.8;
+          //console.log(useTime);
+          this.$store.state.useTime = useTime;
           //计算充电时长
-          // this.$store.state.chargeMoney = moneyNum;
+          this.selectNum = moneyNum;
+          this.$store.state.chargeMoney = moneyNum;
           let time = moneyNum/0.8;
           //向上取整获取小时数
           let hour = Math.floor(time);
@@ -46,6 +48,7 @@
           // this.$store.state.chargeTime = this.timeResult;
         }else{
           this.timeResult = '';
+          this.$store.state.chargeMoney = 0;
         }
 
       }

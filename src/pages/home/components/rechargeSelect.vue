@@ -14,7 +14,7 @@
         <li v-for="(item) in equipmentInfor.chargingVOList"
             :class="[{selected:selectedChargeId==item.id},{charging:item.deviceStatus===1},{break:item.deviceStatus===-1}]" @click="addSelected(item.id)">{{item.deviceStatus===0 ? item.id:''}}</li>
       </ul>
-      <div class="selectedNum">{{ selectedChargeId==''?'请点击上方选择充电桩':'已选：'+selectedChargeId+'号充电桩'}}</div>
+      <div class="selectedNum">{{ selectedChargeId===0 ?'请点击上方选择充电桩':'已选：'+selectedChargeId+'号充电桩'}}</div>
     </div>
   </div>
 </template>
@@ -25,14 +25,15 @@
     inject: ['reload'],
     data() {
       return {
-        selectedChargeId:''
+        selectedChargeId:0
       }
     },
     props:['equipmentInfor'],
     methods:{
       addSelected(id){
-        this.selectedChargeId = id;
-        this.$store.state.chargeId = id;
+        //console.log(id);
+        this.$store.state.chargingId = id;
+        this.selectedChargeId = this.$store.state.chargingId;
       },
       //刷新页面
       refresh(){

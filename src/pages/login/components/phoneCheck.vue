@@ -22,13 +22,12 @@
     data() {
       return {
         isClick: true,
-        //phoneNum: 13145826575,
         phoneNum: '',
         timeMsg: 59,
         yzCode: '',
         //第一次扫描充电桩二维码sn信息
         deviceSN: this.$store.state.deviceSN,
-        userId: Number
+        userId: this.$store.state.userId,
       }
     },
     mounted() {
@@ -49,23 +48,41 @@
           }
         }
       },
+      //用户登录
       loginOn() {
         if (this.checkPhone()) {
           if (this.yzCode !== '') {
-            console.log(this.yzCode);
+            //console.log(this.yzCode);
             this.sendHttp({
               url: this.baseUrl + '/index/login', method: 'post', data: {
                 deviceSN: this.deviceSN, phone: this.phoneNum, code: this.yzCode
-              }, auto: true, stringify: true
+              }
             }).then(res => {
-              console.log(res);
+              //console.log(res);
               if (res.code == '200') {
-                this.$store.state.deviceSN = res.deviceSN;
+                this.$store.state.userId = res.data.userId;
+                this.$store.state.deviceSN = res.data.deviceSN;
                 this.phoneNum = res.phone;
-                this.userId = res.userId;
                 window.sessionStorage.setItem('Authorization', res.data.authToken);
-                window.localStorage.setItem('phoneNum',res.phone);
-                this.$router.push({path: '/'});
+                window.localStorage.setItem('phoneNum', res.data.phone);
+                //获取用户未完成订单
+                this.sendHttp({
+                  url: this.baseUrl + '/order/getUnfinishedOrder', method: 'get', data: {
+                    id: res.data.userId
+                  }
+                }).then(res => {
+                  //console.log(res);
+                  if (res.code == '200') {
+                    if (res.data.haveOrder) {
+                      this.$store.state.orderNum = res.data.orderNum;
+                      this.$router.push({path: '/chargeDetail'});
+                    } else {
+                      this.$router.push({path: '/'});
+                    }
+                  }
+                }).catch(error => {
+                  console.log(error);
+                });
               }
             }).catch(error => {
               console.log(error);
