@@ -1,52 +1,90 @@
 <template>
-    <div class="detailInfor">
-      <div class="inforBox">
-        <ul>
-          <li><span class="left">开始时间</span><span class="right">23:20:20</span></li>
-          <li><span class="left">预计充电时长</span><span class="right">1小时45分钟</span></li>
-          <li><span class="left">设备编号</span><span class="right">1234567890</span></li>
-          <li><span class="left">订单编号</span><span class="right">1234567890-098</span></li>
-          <li><span class="left">支付方式</span><span class="right">微信支付</span></li>
-          <li><span class="left">预付金额</span><span class="right">3.0元</span></li>
-          <li><span class="left">定位地址</span><span class="right">南山区西丽镇民企科技园南门充电桩（1号）</span></li>
-        </ul>
-      </div>
-      <div class="tips">5分钟内（不含5分钟）未充电成功，可退还全款</div>
+  <div class="detailInfor">
+    <div class="inforBox">
+      <ul>
+        <li><span class="left">开始时间</span><span class="right">{{ orderMsg.startTime }}</span></li>
+        <li><span class="left">预计充电时长</span><span class="right">{{ orderMsg.useTime }}</span></li>
+        <li><span class="left">设备编号</span><span class="right">{{ orderInfor.deviceNum }}</span></li>
+        <li><span class="left">订单编号</span><span class="right">{{ orderInfor.orderNum }}</span></li>
+        <li><span class="left">支付方式</span><span class="right">{{ orderInfor.payType==1?'支付宝支付':'微信支付' }}</span></li>
+        <li><span class="left">预付金额</span><span class="right">{{ orderInfor.money }}元</span></li>
+        <li><span class="left">定位地址</span><span class="right">{{ orderInfor.orderLocation }}充电桩（{{
+          orderInfor.chargingId }}号）</span></li>
+      </ul>
     </div>
+    <div class="tips">5分钟内（不含5分钟）未充电成功，可退还全款</div>
+  </div>
 </template>
 
 <script>
-    export default {
-        name: "detailInfor"
+  export default {
+    name: "detailInfor",
+    data() {
+      return {
+        startTime : '',
+        useTime:''
+      }
+    },
+    props:['orderInfor','orderMsg'],
+    created() {
+      //this.getUseTime();
+    },
+    updated() {
+
+    },
+    methods:{
+      // getStartTime(){
+      //   //console.log(this.orderInfor);
+      //   let createTime = this.orderInfor.createTime;
+      //   // let startTime = createTime.split(" ");
+      //    this.startTime = createTime.split(" ")[1];
+      // },
+      // getUseTime(){
+      //   let moneyNum = this.orderInfor.money;
+      //   //计算充电时长
+      //   let time = moneyNum/0.8;
+      //   //向上取整获取小时数
+      //   let hour = Math.floor(time);
+      //   //获取分钟数
+      //   let minute = Math.round((time-hour)*60);
+      //   this.useTime = `${hour}小时${minute}分钟`;
+      // }
     }
+  }
 </script>
 
 <style scoped lang="less">
-  .detailInfor{
-    .tips{
+  .detailInfor {
+    .tips {
       color: #8D95A6;
       font-size: 13px;
       margin: 6px 12px;
     }
+
     margin-top: 20px;
-    .inforBox{
+
+    .inforBox {
       width: 351px;
       margin: 0 auto;
       background: #fff;
       padding: 12px;
       border-radius: 4px;
-      ul{
+
+      ul {
         padding-top: 4px;
-        li{
+
+        li {
           display: flex;
           justify-content: space-between;
           height: 50px;
           line-height: 22px;
-          .left{
+
+          .left {
             width: 50%;
             font-size: 15px;
           }
-          .right{
+
+          .right {
             width: 50%;
             font-size: 16px;
             color: #8D95A6;

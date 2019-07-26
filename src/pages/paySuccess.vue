@@ -5,12 +5,11 @@
       <div class="detail">您已成功支付{{ this.$store.state.chargeMoney }}元</div>
       <div class="payWay">
         <div class="left">支付方式</div>
-        <div class="right">{{ this.$store.statepayType===0?'微信支付':'支付宝支付' }}</div>
+        <div class="right">{{ this.$store.state.payType===0?'微信':'支付宝' }}支付</div>
       </div>
     </div>
     <div class="startCharge">请插上电源开始充电</div>
-      <btn><router-link to="/chargeDetail">查看充电详情</router-link></btn>
-
+      <btn><router-link to="/chargeDetail/infor">查看充电详情</router-link></btn>
     </div>
   </div>
 </template>

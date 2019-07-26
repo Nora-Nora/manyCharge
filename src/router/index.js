@@ -5,7 +5,8 @@ import login from '@/pages/login/login'
 import paySuc from '@/pages/paySuccess'
 import chargeDetail from '@/pages/chargeDetail/chargeDetail'
 import chargeEnd from '@/pages/chargeDetail/chargeEnd'
-
+import detailInfor from '@/pages/chargeDetail/components/detailInfor'
+import endDetail from '@/pages/chargeDetail/components/endInfor'
 Vue.use(Router)
 
 export default new Router({
@@ -32,7 +33,19 @@ export default new Router({
       //充电详情
       path: '/chargeDetail',
       name: 'chargeDetail',
-      component: chargeDetail
+      component: chargeDetail,
+      children:[
+        {
+          path:'infor',
+          name:'detailInfor',
+          component:detailInfor
+        },
+        {
+          path:'end',
+          name:'endDetail',
+          component:endDetail
+        }
+      ]
     },
     {
       //充电结束

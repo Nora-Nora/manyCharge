@@ -7,11 +7,11 @@
       </div>
       <div class="checkCode">
         <span class="checkText">短信验证</span><br>
-        <input type="text" v-model="yzCode">
+        <input type="text" v-model.trim="yzCode">
         <span class="getCode" @click="getCode" v-show="isClick">获取验证码</span>
         <span class="getCode" v-show="!isClick">{{ timeMsg }}s</span>
       </div>
-      <input type="submit" id="submit" value="登录" @click="loginOn">
+      <input type="submit" :class="{active:submitStatus}" id="submit" value="登录" @click="loginOn">
     </form>
   </div>
 </template>
@@ -27,13 +27,21 @@
         yzCode: '',
         //第一次扫描充电桩二维码sn信息
         deviceSN: this.$store.state.deviceSN,
-        userId: this.$store.state.userId,
+        userId: Number,
+        submitStatus:false
       }
     },
     mounted() {
       if (window.localStorage.getItem('phoneNum')) {
         this.phoneNum = window.localStorage.getItem('phoneNum');
         console.log(this.phoneNum);
+      }
+    },
+    updated(){
+      if(this.yzCode!==''){
+        this.submitStatus = true;
+      }else{
+        this.submitStatus = false;
       }
     },
     methods: {
@@ -60,9 +68,15 @@
             }).then(res => {
               //console.log(res);
               if (res.code == '200') {
-                this.$store.state.userId = res.data.userId;
+                //console.log(res);
+                //获取用户id,保存到本地
+                let userId = res.data.userId;
+                this.userId = userId;
+                window.sessionStorage.setItem('userId',userId);
+                //同步store中的sn码
                 this.$store.state.deviceSN = res.data.deviceSN;
                 this.phoneNum = res.phone;
+                //讲用户token和手机号保存到本地
                 window.sessionStorage.setItem('Authorization', res.data.authToken);
                 window.localStorage.setItem('phoneNum', res.data.phone);
                 //获取用户未完成订单
@@ -74,9 +88,13 @@
                   //console.log(res);
                   if (res.code == '200') {
                     if (res.data.haveOrder) {
-                      this.$store.state.orderNum = res.data.orderNum;
-                      this.$router.push({path: '/chargeDetail'});
+                      this.$store.state.haveOrder = true;
+                      this.$store.state.orderNum = res.data.orderInfo.orderNum;
+                      window.sessionStorage.setItem('orderNum',res.data.orderInfo.orderNum);
+                      //console.log(res.data.orderInfo.orderNum);
+                      this.$router.push({path: '/chargeDetail/infor'});
                     } else {
+                      this.$store.state.haveOrder = false;
                       this.$router.push({path: '/'});
                     }
                   }
@@ -107,19 +125,18 @@
       //验证手机号
       checkPhone() {
         if (!/^1(3|4|5|7|8|9)[0-9]{9}$/.test(this.phoneNum)) {
-          this.$vux.toast.text('手机号输入有误!');
+          this.$vux.toast.text('手机号输入有误');
           return false
         } else {
           return true
         }
       },
+      //发送验证码
       sendCode(callback) {
         this.sendHttp({
           url: this.baseUrl + '/index/sendSMS',
           method: 'get',
-          data: {phone: this.phoneNum},
-          auto: true,
-          stringify: true
+          data: {phone: this.phoneNum}
         }).then(res => {
           if (res.code == 200) {
             this.$vux.toast.text('发送成功！');
@@ -174,6 +191,10 @@
         font-size: 16px;
         border-radius: 4px;
         font-weight: bold;
+        &.active{
+          background: @themeColor;
+          color: #fff;
+        }
       }
     }
 

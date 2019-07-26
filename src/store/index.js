@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-
 Vue.use(Vuex);
 
 export default new Vuex.Store({
@@ -16,19 +15,22 @@ export default new Vuex.Store({
     //支付方式
     payType:0,//0微信，1支付宝
     //已充电时长
-    chargeTime: '1小时5分钟',
+    chargeTime: '1小时5分钟', //d
     //预计时间
     useTime: Number,
     //已充电百分数
-    chargePercent: 43,
+    chargePercent: 0,  //d
     //设备编号
     deviceNum: '',
     //第一次扫描充电桩SN码
     deviceSN: '98CC4D200056',
     //用户id
-    userId:Number,
+    userId:Number, //d
     //订单编号
-    orderNum:''
+    orderNum:'',
+    //是否含有未完成订单
+    haveOrder:false
+
   },
   mutations: {
     getEstimate(state) {
@@ -43,9 +45,10 @@ export default new Vuex.Store({
       } else {
         state.estimateTime = '';
       }
-
     }
   },
-  actions: {},
+  actions: {
+
+  },
   getters: {}
 })

@@ -1,8 +1,10 @@
 <template>
   <div class="chargeDetails">
     <top-back>充电详情</top-back>
-    <detail-head :chargePercent="chargePercent" />
-    <detail-infor />
+    <detail-head :orderInfor="orderInfor" :chargeTime="orderMsg.chargeTime" :chargeMin="orderMsg.chargeMin"/>
+    <!--<detail-infor :orderInfor="orderInfor" :haveOrder="haveOrder"/>-->
+    <!--充电详情信息-->
+    <router-view :orderInfor="orderInfor" :orderMsg="orderMsg"/>
     <pop-box v-slot:tipContent v-show="this.$store.state.cancelChargePop">
       <div class="tipContent">
         <div class="text">确认取消充电？</div>
@@ -20,29 +22,124 @@
   import detailHead from './components/detailHead'
   import detailInfor from './components/detailInfor'
   import popBox from '@/components/popBox'
+  import {sendHttp} from "../../assets/js/request";
+
   export default {
     name: "chargeDetail",
-    components:{
+    components: {
       detailHead,
       detailInfor,
       topBack,
       popBox
     },
-    data(){
-      return{
-        chargePercent:30,
-        isPop:this.$store.state.cancelChargePop
+    created() {
+      //获取已充电时长
+      let userId = window.sessionStorage.getItem('userId');
+      sendHttp({
+        url: this.baseUrl + '/order/getUnfinishedOrder', method: 'get', data: {id: userId}
+      }).then(res => {
+        if (res.code == '200' && res.data.haveOrder) {
+          this.orderInfor = res.data.orderInfo;
+          this.orderMsg.haveOrder = res.data.haveOrder;
+          this.$store.state.haveOrder = res.data.haveOrder;
+        }
+      }).catch(error => {
+        console.log(error);
+      });
+    },
+    updated() {
+      this.getChargeTime();
+      this.getUseTime();
+      //console.log(this.$store.state.chargePercent);
+    },
+    beforeDestroy(){
+      this.$store.state.chargePercent = this.percent;
+    },
+    data() {
+      return {
+        userId: Number,
+        isPop: this.$store.state.cancelChargePop,
+        orderInfor: {},
+        percent:0,
+        orderMsg: {
+          haveOrder: false,
+          //开始时间
+          startTime: '',
+          //预计充电时长
+          useTime: '',
+          //充电时长
+          chargeTime: '',
+          //已充电分钟数
+          chargeMin: 0
+        }
       }
     },
-    methods:{
+    methods: {
       //关闭弹出框
-      hidePop(){
+      hidePop() {
         this.$store.state.cancelChargePop = false;
       },
+      //获取已充电时长
+      getChargeTime() {
+        //获取创建时间
+        let createTime = this.orderInfor.createTime;
+        this.orderMsg.startTime = createTime.split(" ")[1];
+        //创建时间戳
+        let StartTime = new Date(createTime);
+        let beforeTime = Date.parse(StartTime);
+        //获取当前时间
+        let timestamp = Date.parse(new Date());
+        //时间差（min）
+        let time = Math.round(parseInt((timestamp - beforeTime) / (1000 * 60)));
+        //console.log(time);
+        let hour = Math.floor(time / 60);
+        //获取分钟数
+        let minute = time % 60;
+        this.orderMsg.chargeMin = Number(minute)<1?1:Number(minute);
+        //获取充值具体时间（X小时X分钟）
+        let chargeTime = `${hour}小时${minute}分钟`;
+        this.orderMsg.chargeTime = chargeTime;
+      },
+      //获取预计充电时长
+      getUseTime() {
+        let moneyNum = this.orderInfor.money;
+        //计算充电时长
+        let time = moneyNum / 0.8;
+        //向上取整获取小时数
+        let hour = Math.floor(time);
+        //获取分钟数
+        let minute = Math.round((time - hour) * 60);
+        this.orderMsg.useTime = `${hour}小时${minute}分钟`;
+      },
       //结束充电
-      chargeEnd(){
-        this.$store.state.chargePercent = 100;
-        this.$router.push({path:'/chargeEnd'});
+      chargeEnd() {
+        //获取内存中用户token
+        let token = window.sessionStorage.getItem('Authorization');
+        //充满充电百分比
+        if (this.orderInfor.payType) {
+          //支付宝支付的订单
+          console.log('结束支付宝订单');
+        } else {
+          //console.log('微信订单编号:'+ window.sessionStorage.getItem('orderNum'));
+          //关闭微信支付的订单
+          setTimeout(sendHttp({
+            url: this.baseUrl + '/order/closeOrderByWechat', method: 'post', data: {
+              orderNum: window.sessionStorage.getItem('orderNum'),
+              token: token
+            }
+          }).then(res => {
+            //console.log(res);
+            if(res.code=='200'){
+              this.$vux.toast.text('取消成功');
+              //this.$router.push({path: '/chargeDetail/end'});
+              this.percent = 100;
+              //console.log(this.$store.state.chargePercent);
+              this.$store.state.cancelChargePop = false;
+            }
+          }).catch(error => {
+            console.log(error);
+          }), this.chargeMin>5 ? 0 : 1000*60*5);
+        }
       }
     }
   }
@@ -50,34 +147,42 @@
 
 <style scoped lang="less">
   @import "~@/assets/style/common.less";
-  .chargeDetails{
+
+  .chargeDetails {
     background: #F8F9FA;
     padding-bottom: 108px;
-    .tipContent{
+
+    .tipContent {
       font-size: 16px;
       text-align: center;
-      .text{
+
+      .text {
         padding-top: 50px;
         padding-bottom: 48px;
       }
-      ul{
+
+      ul {
         margin: 0 24px;
         height: 48px;
         display: flex;
         justify-content: space-between;
         margin-bottom: 30px;
-        li{
+
+        li {
           width: 128px;
           line-height: 48px;
           border-radius: 4px;
-          &.cancel{
+
+          &.cancel {
             border: 1px solid @themeColor;
             color: @themeColor;
           }
-          &.sure{
+
+          &.sure {
             background: @themeColor;
             color: #fff;
           }
+
           /*a{*/
           /*  display: inline-block;*/
           /*  width: 100%;*/

@@ -13,15 +13,15 @@
             <div class="item" ref="section3Item"></div>
           </div>
           <div class="center">
-            <p class="text">{{ percent==100?'充电时长':'已充电'}}</p>
+            <p class="text">{{ this.$store.state.chargePercent==100?'充电时长':'已充电'}}</p>
             <p class="time">{{ chargeTime }}</p>
           </div>
         </div>
       </div>
     </div>
     <div class="right">
-      <div class="text">{{ percent==100?'充电结束':'正在充电…'}}({{ chargeId }}号)</div>
-      <div :class="['cancel',{'finish':percent==100}]" @click="showPop">取消充电</div>
+      <div class="text">{{ this.$store.state.chargePercent==100?'充电结束':'正在充电…'}}({{ orderInfor.chargingId }}号)</div>
+      <div :class="['cancel',{'finish':this.$store.state.chargePercent==100}]" @click="showPop">取消充电</div>
     </div>
     <div class="refresh" @click="refresh"></div>
   </div>
@@ -33,21 +33,27 @@
     inject: ['reload'],
     data(){
       return{
-        percent:'',
-        chargeId:'',
-        chargeTime:''
+        percent:this.$store.state.chargePercent,
+        chargeId:0
       }
     },
+    created(){
+    },
     mounted() {
-      this.chargeTime = this.$store.state.chargeTime;
-      this.chargeId = this.$store.state.chargeId;
+      this.chargeId = this.$store.state.chargingId;
       this.percent = this.$store.state.chargePercent;
-      this.updateDonut(this.$store.state.chargePercent); // 初始化百分比
+      this.getPercent();
+      this.updateDonut(this.percent); // 初始化百分比
+      //console.log(this.percent)
     },
     updated(){
-
+      this.percent = this.$store.state.chargePercent;
+      //console.log(this.$store.state.chargePercent);
+      this.updateDonut(this.percent);
+      this.getPercent();
+      //console.log(this.percent);
     },
-    props:['chargePercent'],
+    props:['orderInfor','chargeTime','chargeMin'],
     methods: {
       updateDonut(percent) {
         // 圆形进度
@@ -76,7 +82,20 @@
       refresh() {
         //刷新页面
         this.reload();
-        this.updateDonut(this.$store.state.chargePercent);
+        this.updateDonut(this.percent);
+      },
+      getPercent(){
+        if(this.orderInfor.orderTime){
+          let percent = (this.chargeMin/this.orderInfor.orderTime)*100;
+          //console.log('chargeMin'+this.chargeMin);
+          this.percent = percent;
+          this.$store.state.chargePercent = percent;
+        }else{
+          this.percent = 100;
+          this.$store.state.chargePercent = 100;
+          //this.$router.push({path:'/chargeDetail/end'});
+          //console.log(this.orderInfor);
+        }
       }
     }
   }

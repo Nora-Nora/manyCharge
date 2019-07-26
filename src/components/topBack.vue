@@ -11,7 +11,21 @@
     name: "topBack",
     methods:{
       goback(){
-        this.$router.push({path:'/'})
+        if(this.$store.state.haveOrder){
+          //有未完成订单，关闭页面
+          var userAgent = navigator.userAgent;
+          if (userAgent.indexOf("Firefox") != -1 || userAgent.indexOf("Chrome") !=-1) {
+            window.open('','_self').close();
+          }else {
+            window.opener = null;
+            window.open("about:blank", "_self");
+            window.close();
+          }
+        }else{
+          //无未完成订单，返回首页
+          this.$router.push({path:'/'});
+        }
+
       }
     }
   }

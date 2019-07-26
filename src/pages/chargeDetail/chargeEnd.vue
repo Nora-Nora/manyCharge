@@ -1,8 +1,8 @@
 <template>
   <div class="chargeEnd">
-    <top-back>充电详情</top-back>
-    <detail-head />
-    <end-infor />
+<!--    <top-back>充电详情</top-back>-->
+<!--    <detail-head/>-->
+<!--    <end-infor />-->
   </div>
 </template>
 

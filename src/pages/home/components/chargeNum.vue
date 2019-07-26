@@ -31,14 +31,14 @@
     },
     methods:{
       chargeTime(moneyNum){
+        moneyNum = Number(moneyNum);
         if(moneyNum>0){
-          //预计充电时长（单位：分）
-          let useTime = (60*moneyNum)/0.8;
-          //console.log(useTime);
-          this.$store.state.useTime = useTime;
-          //计算充电时长
+          var moneyNum = moneyNum.toFixed(1);
           this.selectNum = moneyNum;
           this.$store.state.chargeMoney = moneyNum;
+          let useTime = (60*moneyNum)/0.8;
+          this.$store.state.useTime = useTime;
+          //计算充电时长
           let time = moneyNum/0.8;
           //向上取整获取小时数
           let hour = Math.floor(time);
@@ -50,7 +50,6 @@
           this.timeResult = '';
           this.$store.state.chargeMoney = 0;
         }
-
       }
     }
   }

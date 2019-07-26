@@ -49,9 +49,8 @@ function responseReturn(response) {
   let res = response.data;
   if (res.code == '200' || res.code == '0') {
     return res;
-  } else if (res.code == '1008' || res.code == '1009') {
+  } else if (res.code == '1100') {
     Vue.$vux.toast.text('请重新登录');
-
     // 用户端登录丢失
     let appointProjectCode = window.localStorage.getItem('appointProjectCode');
     window.sessionStorage.clear();
@@ -124,4 +123,6 @@ export function sendHttp(obj) {
     }
   })
 }
+
+
 
