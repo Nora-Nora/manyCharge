@@ -20,7 +20,7 @@
       </div>
     </div>
     <div class="right">
-      <div class="text">{{ orderMsg.isEnd?'充电结束':'正在充电…'}}({{ orderInfor.chargingId }}号)</div>
+      <div class="text">{{ orderMsg.isEnd?'充电结束1':'正在充电…'}}({{ orderInfor.chargingId }}号)</div>
       <div :class="['cancel',{'finish':orderMsg.isEnd}]" @click="showPop">取消充电</div>
     </div>
     <div class="refresh" @click="refresh"></div>
