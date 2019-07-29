@@ -133,6 +133,8 @@
                   }
                 }else if(res.code=='1100'){
                   this.$router.replace({path:'/login'});
+                }else if(res.code=='2015'){
+                  this.$router.push({path:'/chargeDetail/infor'});
                 }
               }).catch(error => {
                 console.log(error);

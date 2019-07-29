@@ -18,8 +18,8 @@ export default new Vuex.Store({
     chargeTime: '1小时5分钟', //d
     //预计时间
     useTime: Number,
-    //已充电百分数
-    chargePercent: 0,  //d
+    // //已充电百分数
+    // chargePercent: 0,  //d
     //设备编号
     deviceNum: '',
     //第一次扫描充电桩SN码

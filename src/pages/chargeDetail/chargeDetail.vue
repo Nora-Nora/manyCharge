@@ -1,7 +1,7 @@
 <template>
   <div class="chargeDetails">
     <top-back>充电详情</top-back>
-    <detail-head :orderInfor="orderInfor" :chargeTime="orderMsg.chargeTime" :chargeMin="orderMsg.chargeMin"/>
+    <detail-head :orderInfor="orderInfor" :orderMsg="orderMsg"/>
     <!--<detail-infor :orderInfor="orderInfor" :haveOrder="haveOrder"/>-->
     <!--充电详情信息-->
     <router-view :orderInfor="orderInfor" :orderMsg="orderMsg"/>
@@ -32,6 +32,28 @@
       topBack,
       popBox
     },
+    data() {
+      return {
+        userId: Number,
+        isPop: this.$store.state.cancelChargePop,
+        orderInfor: {},
+        orderMsg: {
+          haveOrder: false,
+          //开始时间
+          startTime: '',
+          //预计充电时长
+          useTime: '',
+          //充电时长
+          chargeTime: '',
+          //已充电分钟数
+          chargeMin: 0,
+          //充电是否结束
+          isEnd:false,
+          //充电百分数
+          percent:0
+        }
+      }
+    },
     created() {
       //获取已充电时长
       let userId = window.sessionStorage.getItem('userId');
@@ -46,33 +68,16 @@
       }).catch(error => {
         console.log(error);
       });
+
     },
     updated() {
       this.getChargeTime();
       this.getUseTime();
+      this.getPercent();
       //console.log(this.$store.state.chargePercent);
-    },
-    beforeDestroy(){
-      this.$store.state.chargePercent = this.percent;
-    },
-    data() {
-      return {
-        userId: Number,
-        isPop: this.$store.state.cancelChargePop,
-        orderInfor: {},
-        percent:0,
-        orderMsg: {
-          haveOrder: false,
-          //开始时间
-          startTime: '',
-          //预计充电时长
-          useTime: '',
-          //充电时长
-          chargeTime: '',
-          //已充电分钟数
-          chargeMin: 0
-        }
-      }
+      //结束订单
+      //订单退款
+      this.orderBackMoney();
     },
     methods: {
       //关闭弹出框
@@ -128,17 +133,47 @@
               token: token
             }
           }).then(res => {
-            //console.log(res);
+            console.log(res);
             if(res.code=='200'){
+              this.orderMsg.percent = 100;
+              this.orderMsg.isEnd = true;
+              console.log(this.orderMsg);
               this.$vux.toast.text('取消成功');
-              //this.$router.push({path: '/chargeDetail/end'});
-              this.percent = 100;
-              //console.log(this.$store.state.chargePercent);
+              this.$router.push({path: '/chargeDetail/end'});
               this.$store.state.cancelChargePop = false;
             }
           }).catch(error => {
             console.log(error);
           }), this.chargeMin>5 ? 0 : 1000*60*5);
+        }
+        this.orderMsg.isEnd = true;
+      },
+      //充电百分数
+      getPercent(){
+        if(this.orderInfor.orderTime){
+          let percent = (this.orderMsg.chargeMin/this.orderInfor.orderTime)*100;
+          //console.log('chargeMin'+this.chargeMin);
+          this.orderMsg.percent = percent;
+          //this.$store.state.chargePercent = percent;
+        }else{
+          this.orderMsg.percent = 100;
+        }
+      },
+      //订单退款
+      orderBackMoney(){
+        if(this.orderMsg.isEnd==true){
+          let orderNum = window.sessionStorage.getItem('orderNum');
+          let money = this.orderInfor.money;
+          let token = window.sessionStorage.getItem('Authorization');
+          sendHttp({url:this.baseUrl + '/order/refundOrderByWechat',method:'post',data:{
+              orderNum:orderNum,
+              money: money,
+              token:token
+            }}).then(res=>{
+              console.log(res);
+          }).catch(error=>{
+            console.log(error);
+          });
         }
       }
     }

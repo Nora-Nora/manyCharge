@@ -65,7 +65,7 @@
             auth: true,
             stringify: true
           }).then(res=>{
-            console.log(res);
+            //console.log(res);
             if(res.code=='200'){
               this.equipmentInfor = res.data;
               //console.log(res.data);

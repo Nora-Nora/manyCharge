@@ -13,15 +13,15 @@
             <div class="item" ref="section3Item"></div>
           </div>
           <div class="center">
-            <p class="text">{{ this.$store.state.chargePercent==100?'充电时长':'已充电'}}</p>
-            <p class="time">{{ chargeTime }}</p>
+            <p class="text">{{ orderMsg.isEnd?'充电时长':'已充电'}}</p>
+            <p class="time">{{ orderMsg.chargeTime }}</p>
           </div>
         </div>
       </div>
     </div>
     <div class="right">
-      <div class="text">{{ this.$store.state.chargePercent==100?'充电结束':'正在充电…'}}({{ orderInfor.chargingId }}号)</div>
-      <div :class="['cancel',{'finish':this.$store.state.chargePercent==100}]" @click="showPop">取消充电</div>
+      <div class="text">{{ orderMsg.isEnd?'充电结束':'正在充电…'}}({{ orderInfor.chargingId }}号)</div>
+      <div :class="['cancel',{'finish':orderMsg.isEnd}]" @click="showPop">取消充电</div>
     </div>
     <div class="refresh" @click="refresh"></div>
   </div>
@@ -33,27 +33,24 @@
     inject: ['reload'],
     data(){
       return{
-        percent:this.$store.state.chargePercent,
         chargeId:0
       }
     },
     created(){
+      //console.log(this.orderMsg);
     },
     mounted() {
       this.chargeId = this.$store.state.chargingId;
-      this.percent = this.$store.state.chargePercent;
-      this.getPercent();
-      this.updateDonut(this.percent); // 初始化百分比
-      //console.log(this.percent)
+      this.updateDonut(this.orderMsg.percent); // 初始化百分比
     },
     updated(){
-      this.percent = this.$store.state.chargePercent;
-      //console.log(this.$store.state.chargePercent);
-      this.updateDonut(this.percent);
-      this.getPercent();
-      //console.log(this.percent);
+      if(this.orderMsg.isEnd==true){
+        this.updateDonut(100);
+      }else{
+        this.updateDonut(this.orderMsg.percent);
+      }
     },
-    props:['orderInfor','chargeTime','chargeMin'],
+    props:['orderInfor','orderMsg'],
     methods: {
       updateDonut(percent) {
         // 圆形进度
@@ -75,27 +72,15 @@
         //$txt.text = percent
       },
       showPop() {
-        if(this.percent<100){
+        if(this.orderMsg.percent<100 && this.orderMsg.percent>0){
           this.$store.state.cancelChargePop = true;
+        }else{
+          this.$store.state.cancelChargePop = false;
         }
       },
       refresh() {
         //刷新页面
         this.reload();
-        this.updateDonut(this.percent);
-      },
-      getPercent(){
-        if(this.orderInfor.orderTime){
-          let percent = (this.chargeMin/this.orderInfor.orderTime)*100;
-          //console.log('chargeMin'+this.chargeMin);
-          this.percent = percent;
-          this.$store.state.chargePercent = percent;
-        }else{
-          this.percent = 100;
-          this.$store.state.chargePercent = 100;
-          //this.$router.push({path:'/chargeDetail/end'});
-          //console.log(this.orderInfor);
-        }
       }
     }
   }
