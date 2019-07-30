@@ -1,6 +1,6 @@
 <template>
   <div class="chargeDetails">
-    <top-back>充电详情</top-back>
+    <top-back>充电详情{{  }}</top-back>
     <detail-head :orderInfor="orderInfor" :orderMsg="orderMsg"/>
     <!--<detail-infor :orderInfor="orderInfor" :haveOrder="haveOrder"/>-->
     <!--充电详情信息-->
@@ -70,14 +70,42 @@
       });
 
     },
+    mounted(){
+      if(this.orderMsg.isEnd==true){
+        clearInterval(this.getChargeTime);
+      }else{
+        setInterval(this.getChargeTime, 1000);
+      }
+
+  },
     updated() {
       this.getChargeTime();
       this.getUseTime();
       this.getPercent();
       //console.log(this.$store.state.chargePercent);
-      //结束订单
+
+      //预计时间和已充电时间相同时，自动结束订单
+      //console.log('预计时间'+this.orderInfor.orderTime);
+      //console.log('已充电时间'+this.orderMsg.chargeMin);
+      if(this.orderInfor.orderTime==this.orderMsg.chargeMin){
+        this.chargeEnd();
+      }
+
       //订单退款
       this.orderBackMoney();
+      // if(this.useTime===this.chargeTime){
+      //   //this.chargeEnd();
+      //   // this.orderMsg.isEnd = true;
+      //   // this.orderMsg.percent = 100;
+      //   // this.$router.push({path:'/chargeDetail/end'});
+      //   console.log('订单结束！');
+      // }
+    },
+    beforeDestroy(){
+      //销毁定时器
+      if(this.orderMsg.isEnd==true){
+        clearTimeout(this.getChargeTime);
+      }
     },
     methods: {
       //关闭弹出框
@@ -90,20 +118,24 @@
         let createTime = this.orderInfor.createTime;
         this.orderMsg.startTime = createTime.split(" ")[1];
         //创建时间戳
-        let StartTime = new Date(createTime);
-        let beforeTime = Date.parse(StartTime);
-        //获取当前时间
-        let timestamp = Date.parse(new Date());
-        //时间差（min）
-        let time = Math.round(parseInt((timestamp - beforeTime) / (1000 * 60)));
-        //console.log(time);
-        let hour = Math.floor(time / 60);
-        //获取分钟数
-        let minute = time % 60;
-        this.orderMsg.chargeMin = Number(minute)<1?1:Number(minute);
-        //获取充值具体时间（X小时X分钟）
-        let chargeTime = `${hour}小时${minute}分钟`;
-        this.orderMsg.chargeTime = chargeTime;
+        if(createTime){
+          let StartTime = new Date(createTime);
+          let beforeTime = Date.parse(StartTime);
+          //获取当前时间
+          let timestamp = Date.parse(new Date());
+          //时间差（min）
+          let time = Math.round(parseInt((timestamp - beforeTime) / (1000 * 60)));
+          //console.log(time);
+          let hour = Math.floor(time / 60);
+          //获取分钟数
+          let minute = time % 60;
+          this.orderMsg.chargeMin = Number(minute)<1?1:Number(minute);
+          //获取充值具体时间（X小时X分钟）
+          let chargeTime = `${hour}小时${minute}分钟`;
+          this.orderMsg.chargeTime = chargeTime;
+          //console.log(chargeTime);
+        }
+
       },
       //获取预计充电时长
       getUseTime() {
