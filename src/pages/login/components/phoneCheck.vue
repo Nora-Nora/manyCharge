@@ -60,7 +60,7 @@
       loginOn() {
         if (this.checkPhone()) {
           if (this.yzCode !== '') {
-            //console.log(this.yzCode);
+            //请求登录
             this.sendHttp({
               url: this.baseUrl + '/index/login', method: 'post', data: {
                 deviceSN: this.deviceSN, phone: this.phoneNum, code: this.yzCode
@@ -68,7 +68,6 @@
             }).then(res => {
               //console.log(res);
               if (res.code == '200') {
-                //console.log(res);
                 //获取用户id,保存到本地
                 let userId = res.data.userId;
                 this.userId = userId;
@@ -88,12 +87,13 @@
                   //console.log(res);
                   if (res.code == '200') {
                     if (res.data.haveOrder) {
+                      //有未完成的订单，到该订单的详情页
                       this.$store.state.haveOrder = true;
-                      this.$store.state.orderNum = res.data.orderInfo.orderNum;
+                      //this.$store.state.orderNum = res.data.orderInfo.orderNum;
                       window.sessionStorage.setItem('orderNum',res.data.orderInfo.orderNum);
-                      //console.log(res.data.orderInfo.orderNum);
                       this.$router.push({path: '/chargeDetail/infor'});
                     } else {
+                      //没有未完成的订单，直接到首页
                       this.$store.state.haveOrder = false;
                       this.$router.push({path: '/'});
                     }
@@ -114,11 +114,13 @@
       timeDown() {
         const that = this;
         let time = setInterval(function () {
-          that.timeMsg--;
           if (that.timeMsg === 0) {
             clearInterval(time);
             that.timeMsg = 59;
             that.isClick = true;
+          }else{
+            that.timeMsg--;
+
           }
         }, 1000);
       },
@@ -171,8 +173,9 @@
       .getCode {
         color: @themeColor;
         position: absolute;
-        bottom: 16px;
-        right: 10px;
+        bottom: 0;
+        right: 0;
+        line-height: 40px;
       }
     }
 

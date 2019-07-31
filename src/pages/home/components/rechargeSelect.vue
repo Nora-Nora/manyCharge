@@ -21,7 +21,7 @@
 <script>
   export default {
     name: "rechargeSelect",
-    // 注入reload, AppVue中注册
+    // 注入reload
     inject: ['reload'],
     data() {
       return {

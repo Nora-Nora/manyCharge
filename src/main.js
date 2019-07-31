@@ -11,8 +11,6 @@ import { ToastPlugin } from 'vux'
 Vue.use(ToastPlugin);
 import {sendHttp} from "./assets/js/request";
 
-
-
 Vue.prototype.$axios = axios
 Vue.use(Vuex)
 Vue.config.productionTip = false
@@ -26,7 +24,10 @@ Vue.directive('focus', {
 })
 
 //测试环境
-Vue.prototype.baseUrl = 'http://192.168.5.8:8080/';
+Vue.prototype.baseUrl = 'http://192.168.5.8:8080';
+//正式环境
+//Vue.prototype.baseUrl = 'http://api.share.duoduiduo.com';
+
 
 /* eslint-disable no-new */
 new Vue({

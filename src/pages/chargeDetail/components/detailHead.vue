@@ -18,39 +18,57 @@
           </div>
         </div>
       </div>
+      <!--      <div class="wrap_01" style="width: 150px">-->
+      <!--        <Circle-progress-->
+      <!--          :id="1"-->
+      <!--          barColor="#fff"-->
+      <!--          backgroundColor="	rgba(255,255,255,0.2)"-->
+      <!--          width="150"-->
+      <!--          :radius="8"-->
+      <!--          :progress="progress"-->
+      <!--          :isAnimation="false">-->
+      <!--          <p class="text">{{ orderMsg.isEnd?'充电时长':'已充电'}}</p>-->
+      <!--          <p class="time">{{ orderMsg.chargeTime }}</p>-->
+      <!--        </Circle-progress>-->
+      <!--      </div>-->
+
     </div>
     <div class="right">
-      <div class="text">{{ orderMsg.isEnd?'充电结束1':'正在充电…'}}({{ orderInfor.chargingId }}号)</div>
+      <div class="text">{{ orderMsg.isEnd?'充电结束':'正在充电…'}}({{ orderInfor.chargingId }}号)</div>
       <div :class="['cancel',{'finish':orderMsg.isEnd}]" @click="showPop">取消充电</div>
     </div>
     <div class="refresh" @click="refresh"></div>
   </div>
 </template>
 <script>
+  import CircleProgress from 'vue-circleprogressbar'
+
   export default {
     name: "detailHead",
     // 注入reload, AppVue中注册
     inject: ['reload'],
-    data(){
-      return{
-        chargeId:0
-      }
+    components: {
+      CircleProgress
     },
-    created(){
-      //console.log(this.orderMsg);
+    data() {
+      return {
+        chargeId: 0,
+        progress: 0
+      }
     },
     mounted() {
       this.chargeId = this.$store.state.chargingId;
       this.updateDonut(this.orderMsg.percent); // 初始化百分比
     },
-    updated(){
+    updated() {
       if(this.orderMsg.isEnd==true){
         this.updateDonut(100);
       }else{
         this.updateDonut(this.orderMsg.percent);
       }
+
     },
-    props:['orderInfor','orderMsg'],
+    props: ['orderInfor', 'orderMsg'],
     methods: {
       updateDonut(percent) {
         // 圆形进度
@@ -62,7 +80,7 @@
           offset = (360 / 100) * percent
           $el.style.webkitTransform = $el.style.msTransform = $el.style.MozTransform = 'rotate(' + offset + 'deg)'
           $elItem.style.webkitTransform = $elItem.style.msTransform = $elItem.style.MozTransform = 'rotate(' + (180 - offset) + 'deg)'
-          $elItem.style.backgroundColor = 'rgba(69,155,255,1)'
+          $elItem.style.backgroundColor = 'rgba(69, 153, 245,1)'
         } else {
           offset = ((360 / 100) * percent) - 180
           $el.style.webkitTransform = $elItem.style.msTransform = $el.style.MozTransform = 'rotate(180deg)'
@@ -72,10 +90,11 @@
         //$txt.text = percent
       },
       showPop() {
-        if(this.orderMsg.percent<100 && this.orderMsg.percent>0){
-          this.$store.state.cancelChargePop = true;
-        }else{
+        if (this.orderMsg.isEnd) {
           this.$store.state.cancelChargePop = false;
+        } else {
+          //isEnd为false，订单没有结束，弹出是否结束的提示框
+          this.$store.state.cancelChargePop = true;
         }
       },
       refresh() {
@@ -112,7 +131,7 @@
     color: #fff;
 
     .left {
-      width: 60%;
+      width: 70%;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -120,8 +139,8 @@
       .circle-chart {
         .donut-chart {
           position: relative;
-          width: 139.98px;
-          height: 139.98px;
+          width: 130px;
+          height: 130px;
           border-radius: 100%;
           display: flex;
           justify-content: center;
@@ -153,7 +172,7 @@
         }
         .clip {
           border-radius: 50%;
-          clip: rect(0px 140px 140px 70px);
+          clip: rect(0px 140px 140px 64.5px);
           height: 100%;
           position: absolute;
           width: 100%;

@@ -54,9 +54,9 @@ function responseReturn(response) {
     // 用户端登录丢失
     let appointProjectCode = window.localStorage.getItem('appointProjectCode');
     window.sessionStorage.clear();
-    router.replace({
-      path: '/login/' + appointProjectCode
-    });
+    // router.replace({
+    //   path: '/login/' + appointProjectCode
+    // });
 
     // window.sessionStorage.clear();
     // window.localStorage.clear();

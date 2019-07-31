@@ -27,7 +27,8 @@
       return {
         payType: 0,
         userIp: '',
-        orderNum: ''
+        orderNum: '',
+        isWeixin:false
       }
     },
     mounted() {
@@ -93,6 +94,8 @@
           this.userIp = ip;
           if (ip && this.$store.state.deviceSN) {
             //console.log(this.userIp);
+
+            //微信支付
             if (this.payType == 0) {
               this.$store.state.payType = this.payType;
               //传入的money，单位为分
@@ -113,25 +116,33 @@
                   token: token
                 }
               }).then(res => {
-                //console.log(res);
+                console.log(res);
                 if(res.code=='200'){
-                  this.$store.state.orderNum = res.data.orderNum;
                   this.orderNum = res.data.orderNum;
                   window.sessionStorage.setItem('orderNum',res.data.orderNum);
-                  window.location.href = res.data.mweb_url;
                   let data = res.data;
                   let vm = this;
-                  if (typeof WeixinJSBridge === 'undefined') {
-                    if (document.addEventListener) {
-                      document.addEventListener('WeixinJSBridgeReady', vm.onBridgeReady(data), false);
-                    } else if (document.attachEvent) {
-                      document.attachEvent('WeixinJSBridgeReady', vm.onBridgeReady(data));
-                      document.attachEvent('onWeixinJSBridgeReady', vm.onBridgeReady(data));
+                  //判断打开方式
+                  let ua = navigator.userAgent.toLowerCase();
+                  this.isWeixin = ua.indexOf('micromessenger') != -1;
+                  if(this.isWeixin){
+                    //微信内置浏览器打开
+                    if (typeof WeixinJSBridge === 'undefined') {
+                      if (document.addEventListener) {
+                        document.addEventListener('WeixinJSBridgeReady', vm.onBridgeReady(data), false);
+                      } else if (document.attachEvent) {
+                        document.attachEvent('WeixinJSBridgeReady', vm.onBridgeReady(data));
+                        document.attachEvent('onWeixinJSBridgeReady', vm.onBridgeReady(data));
+                      }
+                    } else {
+                      vm.onBridgeReady(data);
                     }
-                  } else {
-                    vm.onBridgeReady(data);
+                  }else{
+                    //普通浏览器打开
+                    window.location.href = res.data.mweb_url;
                   }
                 }else if(res.code=='1100'){
+                  this.$vux.toast.text('请重新登录');
                   this.$router.replace({path:'/login'});
                 }else if(res.code=='2015'){
                   this.$router.push({path:'/chargeDetail/infor'});
@@ -178,14 +189,15 @@
       //微信支付内置对象
       onBridgeReady (data) {
         let self = this;
+        let pkg = 'prepay_id='+data.prepay_id;
         WeixinJSBridge.invoke(
           'getBrandWCPayRequest', {
             'appId': data.appId,//公众号名称，由商户传入
-            'timeStamp': String(data.timeStamp),    //时间戳，自1970年以来的秒数。这里必须要转换为字符串。ios跟android表现不同。后台返回的是数值，但是微信方面必须要json参数都是字符串形式，android会自动转换成字符串（当时我在这里也找了很久的博文才知道的）
-            'nonceStr': data.nonceStr,//随机串
-            'package': data.package,
-            'signType': data.signType,//微信签名方式：
-            'paySign': data.paySign//微信签名
+            'timeStamp': 0, //时间戳，自1970年以来的秒数。这里必须要转换为字符串。ios跟android表现不同。后台返回的是数值，但是微信方面必须要json参数都是字符串形式，android会自动转换成字符串（当时我在这里也找了很久的博文才知道的）
+            'nonceStr': data.nonce_str,//随机串
+            'package': pkg, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=\*\*\*）
+            'signType': data.trade_type,//微信签名方式：
+            'paySign': data.sign//微信签名
           },
           function (res) {
             if (res.err_msg === 'get_brand_wcpay_request:ok') {//支付成功
