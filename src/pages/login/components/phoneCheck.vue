@@ -49,10 +49,7 @@
         const that = this;
         if (this.checkPhone()) {
           if (that.isClick) {
-            that.sendCode(() => {
-              that.isClick = false;
-              that.timeDown();
-            });
+            that.sendCode();
           }
         }
       },
@@ -89,7 +86,6 @@
                     if (res.data.haveOrder) {
                       //有未完成的订单，到该订单的详情页
                       this.$store.state.haveOrder = true;
-                      //this.$store.state.orderNum = res.data.orderInfo.orderNum;
                       window.sessionStorage.setItem('orderNum',res.data.orderInfo.orderNum);
                       this.$router.push({path: '/chargeDetail/infor'});
                     } else {
@@ -120,7 +116,6 @@
             that.isClick = true;
           }else{
             that.timeMsg--;
-
           }
         }, 1000);
       },
@@ -134,7 +129,7 @@
         }
       },
       //发送验证码
-      sendCode(callback) {
+      sendCode() {
         this.sendHttp({
           url: this.baseUrl + '/index/sendSMS',
           method: 'get',
@@ -142,9 +137,8 @@
         }).then(res => {
           if (res.code == 200) {
             this.$vux.toast.text('发送成功！');
-            if (callback) {
-              callback()
-            }
+            this.isClick = false;
+            this.timeDown();
           }
         }).catch(error => {
           console.log(error);
