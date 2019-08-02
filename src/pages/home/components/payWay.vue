@@ -31,39 +31,7 @@
         isWeixin:false
       }
     },
-    mounted() {
-    },
     created() {
-      //判断是否支付成功
-      // if (this.orderNum) {
-      //   sendHttp({
-      //     url: baseUrl + '/order/getOrderByWechat',
-      //     method: 'get',
-      //     data: {orderNum: this.orderNum}
-      //   }).then(res => {
-      //     if (res.code == '200') {
-      //       //支付成功，开启充电口
-      //       let id = this.$store.state.chargingId;
-      //       let orderNum = this.orderNum;
-      //       sendHttp({
-      //         url: baseUrl + '/device/openDevice', method: 'post', data: {
-      //           id: id,
-      //           orderNum: orderNum
-      //         }
-      //       }).then(res=>{
-      //         if(res.code=='200'){
-      //           this.$router.push({path: '/paySuc'});
-      //         }
-      //       }).catch(error=>{
-      //         console.log(error);
-      //       });
-      //
-      //
-      //     }
-      //   }).catch(error => {
-      //     console.log(error);
-      //   });
-      // }
 
     },
     components: {
@@ -78,7 +46,7 @@
         },
       }
     },
-    props: ['equipmentInfor'],
+    props: ['equipmentInfor','userData'],
     methods: {
       paySelect(num) {
         this.payType = num;
@@ -87,40 +55,53 @@
       //点击支付
       isPay() {
         if (this.isUse()) {
-          let phoneNum = window.localStorage.getItem('phoneNum');
-          let token = window.sessionStorage.getItem('Authorization');
           //获取用户ip
           let ip = returnCitySN["cip"];
           this.userIp = ip;
-          if (ip && this.$store.state.deviceSN) {
+          if (ip && this.userData.deviceSN) {
             //console.log(this.userIp);
-
             //微信支付
             if (this.payType == 0) {
               this.$store.state.payType = this.payType;
               //传入的money，单位为分
               let money = this.$store.state.chargeMoney*100;
               let moneyFen = Number(money.toFixed(1));
-              //预估时间
+              //预估时间 单位：分
               let time = Math.round(this.$store.state.useTime);
+              //充电桩口
+              let chargingId = this.$store.state.chargingId;
               //新建微信订单
               this.sendHttp({
                 url: this.baseUrl + '/order/newOrderByWechat', method: 'post', data: {
                   userIp: this.userIp,
-                  deviceSN: this.$store.state.deviceSN,
-                  chargingId: this.$store.state.chargingId,
+                  deviceSN: this.userData.deviceSN,
+                  chargingId: chargingId,
                   money: moneyFen,
                   useTime: time,
                   payType: this.payType,
-                  phone: phoneNum,
-                  token: token
+                  phone: this.userData.phone,
+                  token: this.userData.authToken
                 }
               }).then(res => {
-                console.log(res);
                 if(res.code=='200'){
-                  this.orderNum = res.data.orderNum;
-                  window.sessionStorage.setItem('orderNum',res.data.orderNum);
-                  let data = res.data;
+                  console.log(res);
+                  //微信返回参数
+                  let data = res.data.wechatOrderInfo;
+                  this.orderNum = data.orderNum;
+                  //获取orderData中存储
+                  let orderData = JSON.parse(window.sessionStorage.getItem('orderData'));
+                  //更新orderData中的存储
+                  orderData.createTime = res.data.createTime; //创建时间
+                  orderData.deviceNum = this.equipmentInfor.deviceNum; //设备编号
+                  orderData.money = this.$store.state.chargeMoney;  //订单金额 单位：元
+                  orderData.orderLocation = this.equipmentInfor.deviceLocation;
+                  orderData.orderNum = data.orderNum;  //订单编号
+                  orderData.orderTime = time; //预计使用时长
+                  orderData.chargingId = chargingId; //充电桩口
+                  orderData.payType = this.payType; //支付方式
+                  window.sessionStorage.setItem('orderData',JSON.stringify(orderData));
+
+
                   let vm = this;
                   //判断打开方式
                   let ua = navigator.userAgent.toLowerCase();
@@ -139,7 +120,7 @@
                     }
                   }else{
                     //普通浏览器打开
-                    window.location.href = res.data.mweb_url;
+                    window.location.href = data.mweb_url;
                   }
                 }else if(res.code=='1100'){
                   this.$vux.toast.text('请重新登录');
@@ -192,12 +173,12 @@
         let pkg = 'prepay_id='+data.prepay_id;
         WeixinJSBridge.invoke(
           'getBrandWCPayRequest', {
-            'appId': data.appId,//公众号名称，由商户传入
+            'appId': data.appId, //公众号名称，由商户传入
             'timeStamp': 0, //时间戳，自1970年以来的秒数。这里必须要转换为字符串。ios跟android表现不同。后台返回的是数值，但是微信方面必须要json参数都是字符串形式，android会自动转换成字符串（当时我在这里也找了很久的博文才知道的）
             'nonceStr': data.nonce_str,//随机串
             'package': pkg, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=\*\*\*）
-            'signType': data.trade_type,//微信签名方式：
-            'paySign': data.sign//微信签名
+            'signType': data.trade_type, //微信签名方式：
+            'paySign': data.sign //微信签名
           },
           function (res) {
             if (res.err_msg === 'get_brand_wcpay_request:ok') {//支付成功
@@ -246,7 +227,7 @@
           i {
             display: inline-block;
             width: 20px;
-            height: 18.4px;
+            height: 20px;
             background: url("~imgUrl/home/wechat.png") no-repeat;
             background-size: cover;
             margin-right: 4px;

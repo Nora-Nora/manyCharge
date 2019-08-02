@@ -2,7 +2,6 @@
   <div class="chargeDetails">
     <top-back>充电详情</top-back>
     <detail-head :orderInfor="orderInfor" :orderMsg="orderMsg"/>
-    <!--<detail-infor :orderInfor="orderInfor" :haveOrder="haveOrder"/>-->
     <!--充电详情信息-->
     <router-view :orderInfor="orderInfor" :orderMsg="orderMsg"/>
     <pop-box v-slot:tipContent v-show="this.$store.state.cancelChargePop">
@@ -36,16 +35,14 @@
       return {
         //定时器
         timer: null,
-        userId: Number,
         isPop: this.$store.state.cancelChargePop,
         orderInfor: {},
         orderMsg: {
-          haveOrder: false,
-          //开始时间
+          //开始时间 时分秒
           startTime: '',
-          //预计充电时长
+          //预计充电时长 string X小时X分钟
           useTime: '',
-          //充电时长
+          //充电时长 string X小时X分钟
           chargeTime: '',
           //已充电分钟数
           chargeMin: 0,
@@ -57,20 +54,11 @@
       }
     },
     created() {
-      //获取已充电时长
-      let userId = window.sessionStorage.getItem('userId');
-      sendHttp({
-        url: this.baseUrl + '/order/getUnfinishedOrder', method: 'get', data: {id: userId}
-      }).then(res => {
-        if (res.code == '200' && res.data.haveOrder) {
-          this.orderInfor = res.data.orderInfo;
-          this.orderMsg.haveOrder = res.data.haveOrder;
-          this.$store.state.haveOrder = res.data.haveOrder;
-        }
-      }).catch(error => {
-        console.log(error);
-      });
-
+      //获取订单信息
+      this.orderInfor = JSON.parse(window.sessionStorage.getItem('orderData'));
+      //获取预计时长
+      this.getUseTime();
+      this.getChargeTime();
     },
     mounted() {
       if (this.orderMsg.isEnd == true) {
@@ -80,12 +68,9 @@
       }
     },
     updated() {
-      this.getChargeTime();
-      this.getUseTime();
       this.getPercent();
       //订单退款
       this.orderBackMoney();
-
       //销毁定时器
       if (this.orderMsg.isEnd == true) {
         clearTimeout(this.timer);
@@ -100,7 +85,8 @@
       getChargeTime() {
         //获取创建时间
         let createTime = this.orderInfor.createTime;
-        this.orderMsg.startTime = createTime.split(" ")[1];
+        let timeArr = (createTime || '').split(" ");
+        this.orderMsg.startTime = timeArr.pop();
         //创建时间戳
         if (createTime) {
           let StartTime = new Date(createTime);
@@ -151,8 +137,6 @@
       },
       //结束充电
       chargeEnd() {
-        //获取内存中用户token
-        let token = window.sessionStorage.getItem('Authorization');
         //充满充电百分比
         if (this.orderInfor.payType) {
           //支付宝支付的订单
@@ -160,7 +144,11 @@
         } else {
           //关闭微信支付的订单
           //获取订单编号
-          let orderNum = window.sessionStorage.getItem('orderNum');
+          let orderData = JSON.parse(window.sessionStorage.getItem('orderData'));
+          let orderNum = orderData.orderNum;
+          //获取内存中用户token
+          let userData = JSON.parse(window.sessionStorage.getItem('userData'));
+          let token = userData.authToken;
           sendHttp({
             url: this.baseUrl + '/order/closeOrderByWechat', method: 'post', data: {
               orderNum: orderNum,
@@ -172,8 +160,13 @@
               this.$store.state.cancelChargePop = false;
               this.orderMsg.percent = 100;
               this.orderMsg.isEnd = true;
-              //this.$vux.toast.text('取消成功');
+              this.$vux.toast.text('充电结束');
               this.$router.replace({path: '/chargeDetail/end'});
+              let orderData = JSON.parse(window.sessionStorage.getItem('orderData'));
+              orderData = {};
+              window.sessionStorage.setItem('orderData',JSON.stringify(orderData));
+              let userData = JSON.parse(window.sessionStorage.getItem('userData'));
+              window.sessionStorage.setItem('userData',JSON.stringify(userData));
             }
           }).catch(error => {
             console.log(error);

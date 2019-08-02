@@ -7,7 +7,7 @@
       <!--充值金额-->
       <charge-num />
       <!--支付方式-->
-      <pay-way :equipmentInfor="equipmentInfor"/>
+      <pay-way :equipmentInfor="equipmentInfor" :userData="userData"/>
       <!--充电须知-->
       <charge-suggest/>
     </div>
@@ -41,15 +41,21 @@
       popBox
     },
     created() {
-      this.deviceSN = this.$store.state.deviceSN;
+      //获取用户信息存储
+      let userData = JSON.parse(window.sessionStorage.getItem('userData'));
+      this.$store.state.userData = userData;
+      this.userData = this.$store.state.userData;
+      let deviceSN = window.localStorage.getItem('deviceSN');
+      this.$store.state.deviceSN = deviceSN;
+      this.getEquipmentInfor(deviceSN);
     },
     mounted() {
-      this.getEquipmentInfor(this.deviceSN);
+      this.userData = this.$store.state.userData;
     },
     data() {
       return {
-        deviceSN: '',
-        equipmentInfor: {}
+        userData: {},
+        equipmentInfor: {},
       }
     },
     methods: {
@@ -57,21 +63,18 @@
         this.$store.state.chargeBreakPop = false;
       },
       getEquipmentInfor(deviceSN) {
-        if(this.deviceSN){
+        const that = this;
+        if(deviceSN){
           this.sendHttp({
-            url: this.baseUrl + '/device/getDeviceInfo',
+            url: that.baseUrl + '/device/getDeviceInfo',
             methods: 'get',
-            data: {'deviceSN': this.deviceSN},
-            auth: true,
-            stringify: true
+            data: {'deviceSN': deviceSN}
           }).then(res=>{
-            //console.log(res);
+            console.log(res);
             if(res.code=='200'){
-              this.equipmentInfor = res.data;
-              //console.log(res.data);
+              that.equipmentInfor = res.data;
+              //console.log(this.equipmentInfor);
             }
-          }).catch(error=>{
-            console.log(error);
           });
         }
       }

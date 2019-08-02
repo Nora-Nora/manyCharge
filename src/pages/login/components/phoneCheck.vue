@@ -27,20 +27,28 @@
         yzCode: '',
         //第一次扫描充电桩二维码sn信息
         deviceSN: this.$store.state.deviceSN,
-        userId: Number,
-        submitStatus:false
+        submitStatus: false
       }
     },
-    mounted() {
-      if (window.localStorage.getItem('phoneNum')) {
-        this.phoneNum = window.localStorage.getItem('phoneNum');
-        console.log(this.phoneNum);
+    created() {
+      //新建用户信息
+      if (!window.sessionStorage.getItem('userData')) {
+        let userData = {};
+        window.sessionStorage.setItem('userData', JSON.stringify(userData));
       }
+      //新建订单信息
+      if (!window.sessionStorage.getItem('orderData')) {
+        let orderData = {};
+        window.sessionStorage.setItem('orderData', JSON.stringify(orderData));
+      }
+      //获取内存手机号
+      let phoneNum = window.localStorage.getItem('phoneNum');
+      this.phoneNum = phoneNum;
     },
-    updated(){
-      if(this.yzCode!==''){
+    updated() {
+      if (this.yzCode !== '') {
         this.submitStatus = true;
-      }else{
+      } else {
         this.submitStatus = false;
       }
     },
@@ -57,49 +65,35 @@
       loginOn() {
         if (this.checkPhone()) {
           if (this.yzCode !== '') {
+            const that = this;
             //请求登录
             this.sendHttp({
               url: this.baseUrl + '/index/login', method: 'post', data: {
                 deviceSN: this.deviceSN, phone: this.phoneNum, code: this.yzCode
               }
             }).then(res => {
-              //console.log(res);
+              console.log(res);
               if (res.code == '200') {
-                //获取用户id,保存到本地
-                let userId = res.data.userId;
-                this.userId = userId;
-                window.sessionStorage.setItem('userId',userId);
-                //同步store中的sn码
-                this.$store.state.deviceSN = res.data.deviceSN;
-                this.phoneNum = res.phone;
-                //讲用户token和手机号保存到本地
-                window.sessionStorage.setItem('Authorization', res.data.authToken);
-                window.localStorage.setItem('phoneNum', res.data.phone);
-                //获取用户未完成订单
-                this.sendHttp({
-                  url: this.baseUrl + '/order/getUnfinishedOrder', method: 'get', data: {
-                    id: res.data.userId
-                  }
-                }).then(res => {
-                  //console.log(res);
-                  if (res.code == '200') {
-                    if (res.data.haveOrder) {
-                      //有未完成的订单，到该订单的详情页
-                      this.$store.state.haveOrder = true;
-                      window.sessionStorage.setItem('orderNum',res.data.orderInfo.orderNum);
-                      this.$router.push({path: '/chargeDetail/infor'});
-                    } else {
-                      //没有未完成的订单，直接到首页
-                      this.$store.state.haveOrder = false;
-                      this.$router.push({path: '/'});
-                    }
-                  }
-                }).catch(error => {
-                  console.log(error);
-                });
+                that.phoneNum = res.data.userData.phone;
+                console.log(res.data.userData.phoneNum);
+                window.localStorage.setItem('Authorization',res.data.userData.authToken);
+                window.localStorage.setItem('phoneNum',res.data.userData.phone);
+                window.localStorage.setItem('deviceSN',res.data.userData.deviceSN);
+                //console.log(window.localStorage.getItem('phoneNum'));
+                //存储用户信息
+                let userData = res.data.userData;
+                //console.log(userData);
+                window.sessionStorage.setItem('userData', JSON.stringify(userData));
+                if (res.data.orderData == 'false') {
+                  //没有未完成订单直接跳转首页
+                  this.$router.push({path: '/'});
+                } else {
+                  //有未完成，存储订单信息
+                  let orderData = res.data.orderData;
+                  window.sessionStorage.setItem('orderData', JSON.stringify(orderData));
+                  this.$router.push({path: '/chargeDetail/infor'});
+                }
               }
-            }).catch(error => {
-              console.log(error);
             });
           } else {
             this.$vux.toast.text('请填写验证码');
@@ -114,7 +108,7 @@
             clearInterval(time);
             that.timeMsg = 59;
             that.isClick = true;
-          }else{
+          } else {
             that.timeMsg--;
           }
         }, 1000);
@@ -188,7 +182,8 @@
         font-size: 16px;
         border-radius: 4px;
         font-weight: bold;
-        &.active{
+
+        &.active {
           background: @themeColor;
           color: #fff;
         }

@@ -21,10 +21,7 @@
 
       }
     },
-    props:['equipmentInfor'],
-    mounted() {
-      this.$store.state.deviceNum = this.equipmentInfor.deviceNum;
-    }
+    props:['equipmentInfor']
   }
 </script>
 

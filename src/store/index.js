@@ -27,7 +27,9 @@ export default new Vuex.Store({
     //订单编号
     orderNum:'',
     //是否含有未完成订单
-    haveOrder:false
+    haveOrder:false,
+    //用户信息
+    userData:{}
 
   },
   mutations: {

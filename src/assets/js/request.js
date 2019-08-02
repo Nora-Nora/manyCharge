@@ -13,9 +13,9 @@ let authRequest = axios.create({});
 // authRequest请求拦截器
 authRequest.interceptors.request.use(
   config => {
-    if (localStorage.getItem("appointAuth")) {
+    if (localStorage.getItem("Authorization")) {
       // 判断是否存在token，如果存在的话，则每个http header都加上token
-      config.headers.Authorization = localStorage.getItem("appointAuth");
+      config.headers.Authorization = localStorage.getItem("Authorization");
     }
     return config;
   },
@@ -50,16 +50,16 @@ function responseReturn(response) {
   if (res.code == '200' || res.code == '0') {
     return res;
   } else if (res.code == '1100') {
-    Vue.$vux.toast.text('请重新登录');
-    // 用户端登录丢失
-    let appointProjectCode = window.localStorage.getItem('appointProjectCode');
-    window.sessionStorage.clear();
-    // router.replace({
-    //   path: '/login/' + appointProjectCode
-    // });
-
+    // Vue.$vux.toast.text('请重新登录');
+    // // 用户端登录丢失
+    // let appointProjectCode = window.localStorage.getItem('appointProjectCode');
     // window.sessionStorage.clear();
-    // window.localStorage.clear();
+    //  router.replace({
+    //    path: '/login/' + appointProjectCode
+    //  });
+    //
+    //  window.sessionStorage.clear();
+    //  window.localStorage.clear();
     return res;
   } else {
     Vue.$vux.toast.text(res.message);

@@ -11,7 +11,7 @@
     </div>
     <div class="selectEquipment">
       <ul>
-        <li v-for="(item) in equipmentInfor.chargingVOList"
+        <li v-for="item in equipmentInfor.chargingVOList"
             :class="[{selected:selectedChargeId==item.id},{charging:item.deviceStatus===1},{break:item.deviceStatus===-1}]" @click="addSelected(item.id)">{{item.deviceStatus===0 ? item.id:''}}</li>
       </ul>
       <div class="selectedNum">{{ selectedChargeId===0 ?'请点击上方选择充电桩':'已选：'+selectedChargeId+'号充电桩'}}</div>
@@ -27,6 +27,9 @@
       return {
         selectedChargeId:0
       }
+    },
+    created(){
+      console.log(this.equipmentInfor);
     },
     props:['equipmentInfor'],
     methods:{

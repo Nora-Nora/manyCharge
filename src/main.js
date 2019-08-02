@@ -21,13 +21,12 @@ Vue.directive('focus', {
   inserted: function (el) {
     el.focus()
   }
-})
+});
 
 //测试环境
-Vue.prototype.baseUrl = 'http://192.168.5.8:8080';
-//正式环境
+Vue.prototype.baseUrl = 'http://192.168.5.8:12402';
+//生产环境
 //Vue.prototype.baseUrl = 'http://api.share.duoduiduo.com';
-
 
 /* eslint-disable no-new */
 new Vue({

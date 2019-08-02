@@ -21,34 +21,17 @@
     name: "detailInfor",
     data() {
       return {
-        startTime : '',
-        useTime:''
+
       }
     },
     props:['orderInfor','orderMsg'],
     created() {
-      //this.getUseTime();
+
     },
     updated() {
 
     },
     methods:{
-      // getStartTime(){
-      //   //console.log(this.orderInfor);
-      //   let createTime = this.orderInfor.createTime;
-      //   // let startTime = createTime.split(" ");
-      //    this.startTime = createTime.split(" ")[1];
-      // },
-      // getUseTime(){
-      //   let moneyNum = this.orderInfor.money;
-      //   //计算充电时长
-      //   let time = moneyNum/0.8;
-      //   //向上取整获取小时数
-      //   let hour = Math.floor(time);
-      //   //获取分钟数
-      //   let minute = Math.round((time-hour)*60);
-      //   this.useTime = `${hour}小时${minute}分钟`;
-      // }
     }
   }
 </script>
