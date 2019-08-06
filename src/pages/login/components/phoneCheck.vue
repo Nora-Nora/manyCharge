@@ -175,6 +175,7 @@
         line-height: 40px;
         font-size: 20px;
         border-bottom: 1px solid #EAEAEA;
+        color: #000;
       }
 
       #submit {

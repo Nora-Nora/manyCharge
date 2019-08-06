@@ -11,6 +11,11 @@ import { ToastPlugin } from 'vux'
 Vue.use(ToastPlugin);
 import {sendHttp} from "./assets/js/request";
 
+import { Circle } from 'vant';
+import 'vant/lib/circle/style';
+Vue.use(Circle);
+
+
 Vue.prototype.$axios = axios
 Vue.use(Vuex)
 Vue.config.productionTip = false
@@ -24,9 +29,9 @@ Vue.directive('focus', {
 });
 
 //测试环境
-Vue.prototype.baseUrl = 'http://192.168.5.8:12402';
+//Vue.prototype.baseUrl = 'http://192.168.5.8:12402';
 //生产环境
-//Vue.prototype.baseUrl = 'http://api.share.duoduiduo.com';
+Vue.prototype.baseUrl = 'http://api.share.duoduiduo.com';
 
 /* eslint-disable no-new */
 new Vue({
