@@ -29,7 +29,7 @@
       }
     },
     created(){
-      console.log(this.equipmentInfor);
+      //console.log(this.equipmentInfor);
     },
     props:['equipmentInfor'],
     methods:{

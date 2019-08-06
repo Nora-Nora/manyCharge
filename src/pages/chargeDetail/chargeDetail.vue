@@ -64,7 +64,7 @@
       if (this.orderMsg.isEnd == true) {
         this.timer = null;
       } else {
-        this.timer = setInterval(this.getChargeTime, 1000 * 30);
+        this.timer = setInterval(this.getChargeTime, 1000 *30);
       }
     },
     updated() {
@@ -102,12 +102,13 @@
           let minute = time % 60;
 
           //获取充值具体时间（X小时X分钟）
-          let chargeTime = '';
           if(hour==0 && minute==0){
             this.orderMsg.chargeTime = '0小时1分';
           }else{
             this.orderMsg.chargeTime = hour.toString() + '小时'+ minute.toString() + '分';
           }
+          //console.log(this.orderMsg.chargeTime);
+
 
           //获取已充电的总分钟数
           this.orderMsg.chargeMin = hour*60 + minute;

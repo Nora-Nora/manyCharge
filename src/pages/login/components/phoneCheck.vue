@@ -1,6 +1,6 @@
 <template>
   <div class="phoneCheck">
-    <form action="">
+    <form action="#">
       <div class="phoneNum">
         <span class="checkText">手机号码</span><br>
         <input type="number" v-model="phoneNum" v-focus>
@@ -11,7 +11,7 @@
         <span class="getCode" @click="getCode" v-show="isClick">获取验证码</span>
         <span class="getCode" v-show="!isClick">{{ timeMsg }}s</span>
       </div>
-      <input type="submit" :class="{active:submitStatus}" id="submit" value="登录" @click="loginOn">
+      <input type="button" :class="{active:submitStatus}" id="submit" value="登录" @click="loginOn">
     </form>
   </div>
 </template>
@@ -32,18 +32,21 @@
     },
     created() {
       //新建用户信息
-      if (!window.sessionStorage.getItem('userData')) {
-        let userData = {};
-        window.sessionStorage.setItem('userData', JSON.stringify(userData));
-      }
-      //新建订单信息
-      if (!window.sessionStorage.getItem('orderData')) {
-        let orderData = {};
-        window.sessionStorage.setItem('orderData', JSON.stringify(orderData));
-      }
+      // if (!window.sessionStorage.getItem('userData')) {
+      //   let userData = {};
+      //   window.sessionStorage.setItem('userData', JSON.stringify(userData));
+      // }
+      // //新建订单信息
+      // if (!window.sessionStorage.getItem('orderData')) {
+      //   let orderData = {};
+      //   window.sessionStorage.setItem('orderData', JSON.stringify(orderData));
+      // }
       //获取内存手机号
-      let phoneNum = window.localStorage.getItem('phoneNum');
-      this.phoneNum = phoneNum;
+      if(localStorage.getItem('phoneNum')){
+        let phoneNum = localStorage.getItem('phoneNum');
+        this.phoneNum = phoneNum;
+      }
+
     },
     updated() {
       if (this.yzCode !== '') {

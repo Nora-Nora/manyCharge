@@ -64,6 +64,7 @@
     .money {
       width: 327px;
       line-height: 52px;
+      height: 52px;
       margin: 0 auto;
       background: #F8F9FA;
       display: flex;
@@ -83,10 +84,12 @@
           font-weight: bold;
           text-align: right;
           background: #F8F9FA;
+          color: #000;
           &::-webkit-input-placeholder{
             font-size: 16px;
             color: #8D95A6;
             font-weight: normal;
+            line-height: 52px;
           }
         }
       }
