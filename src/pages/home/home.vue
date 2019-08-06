@@ -44,13 +44,16 @@
       //获取用户信息存储
       let userData = JSON.parse(window.sessionStorage.getItem('userData'));
       this.$store.state.userData = userData;
-      this.userData = this.$store.state.userData;
+      this.userData = userData;
       let deviceSN = window.localStorage.getItem('deviceSN');
       this.$store.state.deviceSN = deviceSN;
       this.getEquipmentInfor(deviceSN);
     },
     mounted() {
       this.userData = this.$store.state.userData;
+    },
+    updated(){
+
     },
     data() {
       return {
@@ -73,7 +76,7 @@
             console.log(res);
             if(res.code=='200'){
               that.equipmentInfor = res.data;
-              //console.log(this.equipmentInfor);
+              //alert(this.equipmentInfor);
             }
           });
         }

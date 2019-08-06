@@ -100,6 +100,7 @@
       refresh() {
         //刷新页面
         this.reload();
+        this.orderMsg.isEnd = this.$store.state.isEnd;
       }
     }
   }

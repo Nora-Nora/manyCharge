@@ -54,11 +54,13 @@
       },
       //点击支付
       isPay() {
+
         if (this.isUse()) {
           //获取用户ip
           let ip = returnCitySN["cip"];
           this.userIp = ip;
-          if (ip && this.userData.deviceSN) {
+
+          if (ip && this.userData) {
             //console.log(this.userIp);
             //微信支付
             if (this.payType == 0) {
@@ -84,7 +86,7 @@
                 }
               }).then(res => {
                 if(res.code=='200'){
-                  console.log(res);
+                  //console.log(res);
                   //微信返回参数
                   let data = res.data.wechatOrderInfo;
                   this.orderNum = data.orderNum;
@@ -100,7 +102,6 @@
                   orderData.chargingId = chargingId; //充电桩口
                   orderData.payType = this.payType; //支付方式
                   window.sessionStorage.setItem('orderData',JSON.stringify(orderData));
-
 
                   let vm = this;
                   //判断打开方式
@@ -120,12 +121,13 @@
                     }
                   }else{
                     //普通浏览器打开
-                    window.location.href = data.mweb_url;
+                    window.location.href = data.mweb_url+'&redirect_url=' + this.baseUrl + '/#/paySuc';
                   }
                 }else if(res.code=='1100'){
                   this.$vux.toast.text('请重新登录');
                   this.$router.replace({path:'/login'});
                 }else if(res.code=='2015'){
+                  //console.log(res.message);
                   this.$router.push({path:'/chargeDetail/infor'});
                 }
               }).catch(error => {
@@ -136,6 +138,9 @@
               //新建支付宝订单
               console.log('新建支付宝订单');
             }
+          }else{
+            this.$vux.toast.text('请重新登录');
+            this.$router.replace({path:'/login'});
           }
         }
       },

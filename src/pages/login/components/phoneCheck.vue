@@ -67,6 +67,7 @@
           if (this.yzCode !== '') {
             const that = this;
             //请求登录
+            //alert(this.deviceSN);
             this.sendHttp({
               url: this.baseUrl + '/index/login', method: 'post', data: {
                 deviceSN: this.deviceSN, phone: this.phoneNum, code: this.yzCode

@@ -29,7 +29,8 @@ export default new Vuex.Store({
     //是否含有未完成订单
     haveOrder:false,
     //用户信息
-    userData:{}
+    userData:{},
+    chargeEnd:false
 
   },
   mutations: {

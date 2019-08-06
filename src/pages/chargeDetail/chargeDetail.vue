@@ -47,7 +47,7 @@
           //已充电分钟数
           chargeMin: 0,
           //充电是否结束
-          isEnd: false,
+          isEnd: this.$store.state.isEnd,
           //充电百分数
           percent: 0
         }
@@ -68,9 +68,10 @@
       }
     },
     updated() {
+      //this.orderMsg.isEnd = this.$store.state.isEnd;
       this.getPercent();
       //订单退款
-      this.orderBackMoney();
+      //this.orderBackMoney();
       //销毁定时器
       if (this.orderMsg.isEnd == true) {
         clearTimeout(this.timer);
@@ -101,12 +102,12 @@
           let minute = time % 60;
 
           //获取充值具体时间（X小时X分钟）
+          let chargeTime = '';
           if(hour==0 && minute==0){
-            var chargeTime = `${hour}小时1分`;
+            this.orderMsg.chargeTime = '0小时1分';
           }else{
-            var chargeTime = `${hour}小时${minute}分`;
+            this.orderMsg.chargeTime = hour.toString() + '小时'+ minute.toString() + '分';
           }
-          this.orderMsg.chargeTime = chargeTime;
 
           //获取已充电的总分钟数
           this.orderMsg.chargeMin = hour*60 + minute;
@@ -120,7 +121,6 @@
           }else{
             this.getPercent();
           }
-
         }
 
       },
@@ -137,6 +137,10 @@
       },
       //结束充电
       chargeEnd() {
+        //充电结束
+        this.orderMsg.isEnd = true;
+        this.$store.state.isEnd = true;
+        console.log(this.$store.state.isEnd);
         //充满充电百分比
         if (this.orderInfor.payType) {
           //支付宝支付的订单
@@ -145,7 +149,8 @@
           //关闭微信支付的订单
           //获取订单编号
           let orderData = JSON.parse(window.sessionStorage.getItem('orderData'));
-          let orderNum = orderData.orderNum;
+          console.log(orderData);
+          let orderNum = this.orderInfor.orderNum;
           //获取内存中用户token
           let userData = JSON.parse(window.sessionStorage.getItem('userData'));
           let token = userData.authToken;
@@ -155,21 +160,21 @@
               token: token
             }
           }).then(res => {
-            console.log(res.code);
+            //console.log(res.code);
             if (res.code == '200') {
               this.$store.state.cancelChargePop = false;
               this.orderMsg.percent = 100;
-              this.orderMsg.isEnd = true;
+              this.$store.state.chargeEnd = true;
               this.$vux.toast.text('充电结束');
               this.$router.replace({path: '/chargeDetail/end'});
               let orderData = JSON.parse(window.sessionStorage.getItem('orderData'));
-              orderData = {};
+              //orderData = {};
               window.sessionStorage.setItem('orderData',JSON.stringify(orderData));
               let userData = JSON.parse(window.sessionStorage.getItem('userData'));
               window.sessionStorage.setItem('userData',JSON.stringify(userData));
+              //获取订单退款信息
+              this.orderBackMoney();
             }
-          }).catch(error => {
-            console.log(error);
           });
         }
         this.orderMsg.isEnd = true;
@@ -185,22 +190,22 @@
       },
       //订单退款
       orderBackMoney() {
-        if (this.orderMsg.isEnd == true) {
-          let orderNum = window.sessionStorage.getItem('orderNum');
-          let money = this.orderInfor.money;
-          let token = window.sessionStorage.getItem('Authorization');
-          sendHttp({
-            url: this.baseUrl + '/order/refundOrderByWechat', method: 'post', data: {
-              orderNum: orderNum,
-              money: money,
-              token: token
-            }
-          }).then(res => {
-            console.log(res);
-          }).catch(error => {
-            console.log(error);
-          });
-        }
+        // if (this.orderMsg.isEnd == true) {
+        //   let orderNum = this.orderInfor.orderNum;
+        //   let money = this.orderInfor.money;
+        //   let token = window.localStorage.getItem('Authorization');
+        //   sendHttp({
+        //     url: this.baseUrl + '/order/refundOrderByWechat', method: 'post', data: {
+        //       orderNum: orderNum,
+        //       money: money,
+        //       token: token
+        //     }
+        //   }).then(res => {
+        //     console.log(res);
+        //   }).catch(error => {
+        //     console.log(error);
+        //   });
+        // }
       }
     }
   }
