@@ -11,8 +11,8 @@
     </div>
     <div class="selectEquipment">
       <ul>
-        <li v-for="item in equipmentInfor.chargingVOList"
-            :class="[{selected:selectedChargeId==item.id},{charging:item.deviceStatus===1},{break:item.deviceStatus===-1}]" @click="addSelected(item.id)">{{item.deviceStatus===0 ? item.id:''}}</li>
+        <li v-for="(item,index) in equipmentInfor.chargingVOList"
+            :class="[{selected:selectedChargeId==item.id},{charging:item.deviceStatus===1},{break:item.deviceStatus===-1}]" @click="addSelected(item.id)">{{item.deviceStatus===0 ? index+1:''}}</li>
       </ul>
       <div class="selectedNum">{{ selectedChargeId===0 ?'请点击上方选择充电桩':'已选：'+selectedChargeId+'号充电桩'}}</div>
     </div>
@@ -21,8 +21,6 @@
 <script>
   export default {
     name: "rechargeSelect",
-    // 注入reload
-    inject: ['reload'],
     data() {
       return {
         selectedChargeId:0
@@ -40,7 +38,12 @@
       },
       //刷新页面
       refresh(){
-        this.reload();
+        //this.reload();
+        let deviceSN = localStorage.getItem('deviceSN');
+        if(deviceSN){
+          this.$parent.getEquipmentInfor(deviceSN);
+        }
+
       }
     }
 

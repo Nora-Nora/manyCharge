@@ -76,7 +76,8 @@
             console.log(res);
             if(res.code=='200'){
               that.equipmentInfor = res.data;
-              //alert(this.equipmentInfor);
+              that.equipmentInfor.chargingVOList = res.data.chargingVOList;
+              //console.log(this.equipmentInfor.chargingVOList);
             }
           });
         }
