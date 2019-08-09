@@ -31,19 +31,9 @@
       }
     },
     created() {
-      //新建用户信息
-      // if (!window.sessionStorage.getItem('userData')) {
-      //   let userData = {};
-      //   window.sessionStorage.setItem('userData', JSON.stringify(userData));
-      // }
-      // //新建订单信息
-      // if (!window.sessionStorage.getItem('orderData')) {
-      //   let orderData = {};
-      //   window.sessionStorage.setItem('orderData', JSON.stringify(orderData));
-      // }
       //获取内存手机号
-      if(localStorage.getItem('phoneNum')){
-        let phoneNum = localStorage.getItem('phoneNum');
+      let phoneNum = window.localStorage.getItem('phoneNum');
+      if (phoneNum) {
         this.phoneNum = phoneNum;
       }
 
@@ -70,33 +60,55 @@
           if (this.yzCode !== '') {
             const that = this;
             //请求登录
-            //alert(this.deviceSN);
             this.sendHttp({
               url: this.baseUrl + '/index/login', method: 'post', data: {
                 deviceSN: this.deviceSN, phone: this.phoneNum, code: this.yzCode
               }
             }).then(res => {
-              console.log(res);
               if (res.code == '200') {
-                that.phoneNum = res.data.userData.phone;
-                console.log(res.data.userData.phoneNum);
-                window.localStorage.setItem('Authorization',res.data.userData.authToken);
-                window.localStorage.setItem('phoneNum',res.data.userData.phone);
-                window.localStorage.setItem('deviceSN',res.data.userData.deviceSN);
-                //console.log(window.localStorage.getItem('phoneNum'));
-                //存储用户信息
-                let userData = res.data.userData;
-                //console.log(userData);
-                window.sessionStorage.setItem('userData', JSON.stringify(userData));
-                if (res.data.orderData == 'false') {
-                  //没有未完成订单直接跳转首页
-                  this.$router.push({path: '/'});
-                } else {
-                  //有未完成，存储订单信息
-                  let orderData = res.data.orderData;
-                  window.sessionStorage.setItem('orderData', JSON.stringify(orderData));
-                  this.$router.push({path: '/chargeDetail/infor'});
-                }
+                console.log(res);
+                that.phoneNum = res.data.phone;
+                //存储用户登录信息到session
+                let userData = res.data;
+                window.localStorage.setItem('userData', JSON.stringify(userData));
+                //用户手机号、deviceSN码存到localStrorage
+                //window.localStorage.setItem('phoneNum', userData.phone);
+                //window.localStorage.setItem('deviceSN', userData.deviceSN);
+                //获取用户未完成订单
+                this.sendHttp({
+                  url: this.baseUrl + '/order/getUnfinishedOrder', method: 'post', data: {
+                    id: userData.userId
+                  }
+                }).then(res => {
+                  if (res.code == '200') {
+                    //是否有未完成订单
+                    if(res.data.haveOrder){
+                      //有未完成支付的订单
+                      let orderData = res.data.orderInfo;
+                      if (orderData.type === 0) {
+                        this.$vux.toast.text('存在未付款的订单');
+                        let webUrl = orderData.webUrl;
+                        setTimeout(function () {
+                          window.location.href = webUrl + '&redirect_url=' + this.baseUrl + '/#/paySuc';
+                        },1000);
+
+                      }else{
+                        if(orderData.type === 1){
+                          //已付完未结束订单
+                          this.$vux.toast.text('存在未结束订单');
+                        }else if(orderData.type === 6){
+                          //设备异常
+                          this.$vux.toast.text('设备异常，请及时取消订单');
+                        }
+                        window.sessionStorage.setItem('orderData', JSON.stringify(orderData));
+                        this.$router.push({path: '/chargeDetail/infor'});
+                      }
+                    }else{
+                      //没有未完成订单
+                      this.$router.push({path: '/'});
+                    }
+                  }
+                });
               }
             });
           } else {

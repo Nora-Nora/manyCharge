@@ -5,7 +5,7 @@
       <!--充电桩设备选择-->
       <recharge-select :equipmentInfor="equipmentInfor"/>
       <!--充值金额-->
-      <charge-num />
+      <charge-num/>
       <!--支付方式-->
       <pay-way :equipmentInfor="equipmentInfor" :userData="userData"/>
       <!--充电须知-->
@@ -42,17 +42,18 @@
     },
     created() {
       //获取用户信息存储
-      let userData = JSON.parse(window.sessionStorage.getItem('userData'));
-      this.$store.state.userData = userData;
-      this.userData = userData;
-      let deviceSN = window.localStorage.getItem('deviceSN');
-      this.$store.state.deviceSN = deviceSN;
-      this.getEquipmentInfor(deviceSN);
+      let userData = JSON.parse(window.localStorage.getItem('userData'));
+      if(userData){
+        this.$store.state.userData = userData;
+        this.userData = userData;
+        let deviceSN = userData.deviceSN;
+        //this.$store.state.deviceSN = deviceSN;
+        this.getEquipmentInfor(deviceSN);
+      }else{
+        this.$router.push({path:'/login'});
+      }
     },
-    mounted() {
-      this.userData = this.$store.state.userData;
-    },
-    updated(){
+    updated() {
 
     },
     data() {
@@ -67,14 +68,14 @@
       },
       getEquipmentInfor(deviceSN) {
         const that = this;
-        if(deviceSN){
+        if (deviceSN) {
           this.sendHttp({
             url: that.baseUrl + '/device/getDeviceInfo',
             methods: 'get',
             data: {'deviceSN': deviceSN}
-          }).then(res=>{
+          }).then(res => {
             console.log(res);
-            if(res.code=='200'){
+            if (res.code == '200') {
               that.equipmentInfor = res.data;
               that.equipmentInfor.chargingVOList = res.data.chargingVOList;
               //console.log(this.equipmentInfor.chargingVOList);

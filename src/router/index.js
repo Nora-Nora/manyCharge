@@ -4,7 +4,6 @@ import home from '@/pages/home/home'
 import login from '@/pages/login/login'
 import paySuc from '@/pages/paySuccess'
 import chargeDetail from '@/pages/chargeDetail/chargeDetail'
-import chargeEnd from '@/pages/chargeDetail/chargeEnd'
 import detailInfor from '@/pages/chargeDetail/components/detailInfor'
 import endDetail from '@/pages/chargeDetail/components/endInfor'
 Vue.use(Router)
@@ -40,18 +39,13 @@ export default new Router({
           name:'detailInfor',
           component:detailInfor
         },
+        //充电结束
         {
           path:'end',
           name:'endDetail',
           component:endDetail
         }
       ]
-    },
-    {
-      //充电结束
-      path: '/chargeEnd',
-      name: 'chargeEnd',
-      component: chargeEnd
     }
   ]
 })

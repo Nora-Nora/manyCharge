@@ -11,8 +11,8 @@
     </div>
     <div class="selectEquipment">
       <ul>
-        <li v-for="(item,index) in equipmentInfor.chargingVOList"
-            :class="[{selected:selectedChargeId==item.id},{charging:item.deviceStatus===1},{break:item.deviceStatus===-1}]" @click="addSelected(item.id)">{{item.deviceStatus===0 ? index+1:''}}</li>
+        <li v-for="item in equipmentInfor.chargingVOList"
+            :class="[{selected:selectedChargeId==item.chargingAddr-1},{charging:item.deviceStatus===1},{break:item.deviceStatus===-1}]" @click="addSelected(item.chargingAddr-1,item.id)">{{item.deviceStatus===0 ? item.chargingAddr-1:''}}</li>
       </ul>
       <div class="selectedNum">{{ selectedChargeId===0 ?'请点击上方选择充电桩':'已选：'+selectedChargeId+'号充电桩'}}</div>
     </div>
@@ -26,24 +26,22 @@
         selectedChargeId:0
       }
     },
-    created(){
-      //console.log(this.equipmentInfor);
-    },
     props:['equipmentInfor'],
     methods:{
-      addSelected(id){
+      addSelected(num,id){
         //console.log(id);
         this.$store.state.chargingId = id;
-        this.selectedChargeId = this.$store.state.chargingId;
+        this.selectedChargeId = num;
       },
       //刷新页面
       refresh(){
         //this.reload();
-        let deviceSN = localStorage.getItem('deviceSN');
+        let userData = JSON.parse(window.sessionStorage.getItem('userData'));
+        let deviceSN = userData.deviceSN;
         if(deviceSN){
           this.$parent.getEquipmentInfor(deviceSN);
+          this.selectedChargeId = 0;
         }
-
       }
     }
 
@@ -118,7 +116,7 @@
         flex-wrap: wrap;
         margin-top: 24px;
         width: 358px;
-        padding-left: 23px;
+        padding-left: 22px;
 
         li {
           width: 40px;

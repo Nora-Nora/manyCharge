@@ -15,7 +15,6 @@ import { Circle } from 'vant';
 import 'vant/lib/circle/style';
 Vue.use(Circle);
 
-
 Vue.prototype.$axios = axios
 Vue.use(Vuex)
 Vue.config.productionTip = false

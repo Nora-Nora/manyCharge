@@ -8,7 +8,7 @@
         </li>
         <li>
           <div class="left">结束时间</div>
-          <div class="right">01:40:12</div>
+          <div class="right">{{ orderMsg.endTime }}</div>
         </li>
         <li>
           <div class="left">充电时长</div>
@@ -16,11 +16,11 @@
         </li>
         <li>
           <div class="left">充电费用</div>
-          <div class="right">1.0元</div>
+          <div class="right">{{ orderMsg.useMoney }}元</div>
         </li>
         <li class="backMoney">
           <div class="left">退款金额</div>
-          <div class="right">2.0元</div>
+          <div class="right">{{ orderMsg.backMoney }}元</div>
         </li>
       </ul>
     </div>

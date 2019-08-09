@@ -21,7 +21,6 @@
   import detailHead from './components/detailHead'
   import detailInfor from './components/detailInfor'
   import popBox from '@/components/popBox'
-  import {sendHttp} from "../../assets/js/request";
 
   export default {
     name: "chargeDetail",
@@ -49,13 +48,23 @@
           //充电是否结束
           isEnd: this.$store.state.isEnd,
           //充电百分数
-          percent: 0
+          percent: 0,
+          //结束时间
+          endTime:'',
+          //充电费用
+          useMoney: '',
+          //退款金额
+          backMoney:''
         }
       }
     },
     created() {
       //获取订单信息
-      this.orderInfor = JSON.parse(window.sessionStorage.getItem('orderData'));
+      let orderData = JSON.parse(window.sessionStorage.getItem('orderData'));
+      if(orderData){
+        this.orderInfor = orderData;
+      }
+
       //获取预计时长
       this.getUseTime();
       this.getChargeTime();
@@ -70,8 +79,7 @@
     updated() {
       //this.orderMsg.isEnd = this.$store.state.isEnd;
       this.getPercent();
-      //订单退款
-      //this.orderBackMoney();
+
       //销毁定时器
       if (this.orderMsg.isEnd == true) {
         clearTimeout(this.timer);
@@ -107,23 +115,50 @@
           }else{
             this.orderMsg.chargeTime = hour.toString() + '小时'+ minute.toString() + '分';
           }
-          //console.log(this.orderMsg.chargeTime);
-
 
           //获取已充电的总分钟数
           this.orderMsg.chargeMin = hour*60 + minute;
           if(this.orderMsg.chargeMin<1){
             this.orderMsg.chargeMin = 1;
           }
-
-          //预计时间和已充电时间相同时，自动结束订单
-          if (this.orderMsg.chargeMin>=this.orderInfor.orderTime) {
-            this.chargeEnd();
-          }else{
-            this.getPercent();
-          }
         }
-
+        //判断订单是否已到结束时间
+        this.ChargeFinish();
+        this.orderMsg.useMoney = this.orderInfor.money;
+        this.orderMsg.backMoney = 0;
+      },
+      //获取订单是否已完成充电
+      ChargeFinish(){
+        let userData = JSON.parse(window.localStorage.getItem('userData'));
+        this.sendHttp({
+          url: this.baseUrl + '/order/getUnfinishedOrder', method: 'get', data: {
+            id: userData.userId
+          }
+        }).then(res=>{
+          if(res.data.haveOrder){
+            return
+          }else{
+            //获取结束时间
+            let dates = new date();
+            let hour=dates.getHours();
+            let mimute=dates.getMinutes();
+            var second=dates.getSeconds();
+            let endTime = hour+':'+mimute+':'+second;
+            this.orderMsg.endTime = endTime;
+            this.endInfor();
+          }
+        })
+      },
+      //订单结束
+      endInfor(){
+        this.orderMsg.percent = 100;
+        this.$store.state.chargeEnd = true;
+        this.$vux.toast.text('充电结束');
+        this.$router.replace({path: '/chargeDetail/end'});
+        let orderData = JSON.parse(window.sessionStorage.getItem('orderData'));
+        window.sessionStorage.setItem('orderData',JSON.stringify(orderData));
+        let userData = JSON.parse(window.localStorage.getItem('userData'));
+        window.sessionStorage.setItem('userData',JSON.stringify(userData));
       },
       //获取预计充电时长
       getUseTime() {
@@ -141,40 +176,39 @@
         //充电结束
         this.orderMsg.isEnd = true;
         this.$store.state.isEnd = true;
-        console.log(this.$store.state.isEnd);
-        //充满充电百分比
+        //获取结束时间
+        let date=new Date();
+        let hour=date.getHours();
+        var mimute=date.getMinutes();
+        var second=date.getSeconds();
+        let endTime = hour+':'+mimute+':'+second;
+        this.orderMsg.endTime = endTime;
+        //支付方式
         if (this.orderInfor.payType) {
-          //支付宝支付的订单
+          //结束支付宝支付的订单
           console.log('结束支付宝订单');
         } else {
           //关闭微信支付的订单
           //获取订单编号
           let orderData = JSON.parse(window.sessionStorage.getItem('orderData'));
-          console.log(orderData);
-          let orderNum = this.orderInfor.orderNum;
+          let orderNum = orderData.orderNum;
+          let money = Number(orderData.money)*100;
           //获取内存中用户token
-          let userData = JSON.parse(window.sessionStorage.getItem('userData'));
+          let userData = JSON.parse(window.localStorage.getItem('userData'));
           let token = userData.authToken;
-          sendHttp({
-            url: this.baseUrl + '/order/closeOrderByWechat', method: 'post', data: {
+          this.sendHttp({
+            url: this.baseUrl + '/order/refundOrderByWechat', method: 'post', data: {
               orderNum: orderNum,
+              money: money,
               token: token
             }
           }).then(res => {
-            //console.log(res.code);
+            console.log(res);
             if (res.code == '200') {
               this.$store.state.cancelChargePop = false;
-              this.orderMsg.percent = 100;
-              this.$store.state.chargeEnd = true;
-              this.$vux.toast.text('充电结束');
-              this.$router.replace({path: '/chargeDetail/end'});
-              let orderData = JSON.parse(window.sessionStorage.getItem('orderData'));
-              //orderData = {};
-              window.sessionStorage.setItem('orderData',JSON.stringify(orderData));
-              let userData = JSON.parse(window.sessionStorage.getItem('userData'));
-              window.sessionStorage.setItem('userData',JSON.stringify(userData));
-              //获取订单退款信息
-              this.orderBackMoney();
+              this.orderMsg.backMoney = res.data.refund_fee;
+              this.orderMsg.useMoney = res.data.cash_fee-res.data.refund_fee;
+              this.endInfor();
             }
           });
         }
@@ -188,25 +222,6 @@
         } else {
           this.orderMsg.percent = 100;
         }
-      },
-      //订单退款
-      orderBackMoney() {
-        // if (this.orderMsg.isEnd == true) {
-        //   let orderNum = this.orderInfor.orderNum;
-        //   let money = this.orderInfor.money;
-        //   let token = window.localStorage.getItem('Authorization');
-        //   sendHttp({
-        //     url: this.baseUrl + '/order/refundOrderByWechat', method: 'post', data: {
-        //       orderNum: orderNum,
-        //       money: money,
-        //       token: token
-        //     }
-        //   }).then(res => {
-        //     console.log(res);
-        //   }).catch(error => {
-        //     console.log(error);
-        //   });
-        // }
       }
     }
   }

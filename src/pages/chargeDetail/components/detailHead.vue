@@ -36,9 +36,6 @@
         currentRate: 0
       }
     },
-    mounted() {
-      this.chargeId = this.$store.state.chargingId;
-    },
     updated() {
       if (this.orderMsg.isEnd == true) {
         this.orderMsg.percent = 100;

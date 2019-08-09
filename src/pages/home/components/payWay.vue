@@ -28,7 +28,7 @@
         payType: 0,
         userIp: '',
         orderNum: '',
-        isWeixin:false
+        isWeixin: false
       }
     },
     created() {
@@ -46,7 +46,7 @@
         },
       }
     },
-    props: ['equipmentInfor','userData'],
+    props: ['equipmentInfor', 'userData'],
     methods: {
       paySelect(num) {
         this.payType = num;
@@ -54,93 +54,115 @@
       },
       //点击支付
       isPay() {
-
         if (this.isUse()) {
           //获取用户ip
           let ip = returnCitySN["cip"];
           this.userIp = ip;
-
           if (ip && this.userData) {
             //console.log(this.userIp);
             //微信支付
             if (this.payType == 0) {
-              this.$store.state.payType = this.payType;
-              //传入的money，单位为分
-              let money = this.$store.state.chargeMoney*100;
-              let moneyFen = Number(money.toFixed(1));
-              //预估时间 单位：分
-              let time = Math.round(this.$store.state.useTime);
-              //充电桩口
-              let chargingId = this.$store.state.chargingId;
-              //新建微信订单
+              //新建订单前判断是否有支付异常的订单
+              let userData = JSON.parse(window.localStorage.getItem('userData'));
               this.sendHttp({
-                url: this.baseUrl + '/order/newOrderByWechat', method: 'post', data: {
-                  userIp: this.userIp,
-                  deviceSN: this.userData.deviceSN,
-                  chargingId: chargingId,
-                  money: moneyFen,
-                  useTime: time,
-                  payType: this.payType,
-                  phone: this.userData.phone,
-                  token: this.userData.authToken
+                url: this.baseUrl + '/order/getUnfinishedOrder', method: 'get', data: {
+                  id: userData.userId
                 }
               }).then(res => {
-                if(res.code=='200'){
-                  //console.log(res);
-                  //微信返回参数
-                  let data = res.data.wechatOrderInfo;
-                  this.orderNum = data.orderNum;
-                  //获取orderData中存储
-                  let orderData = JSON.parse(window.sessionStorage.getItem('orderData'));
-                  //更新orderData中的存储
-                  orderData.createTime = res.data.createTime; //创建时间
-                  orderData.deviceNum = this.equipmentInfor.deviceNum; //设备编号
-                  orderData.money = this.$store.state.chargeMoney;  //订单金额 单位：元
-                  orderData.orderLocation = this.equipmentInfor.deviceLocation;
-                  orderData.orderNum = data.orderNum;  //订单编号
-                  orderData.orderTime = time; //预计使用时长
-                  orderData.chargingId = chargingId; //充电桩口
-                  orderData.payType = this.payType; //支付方式
-                  window.sessionStorage.setItem('orderData',JSON.stringify(orderData));
-
-                  let vm = this;
-                  //判断打开方式
-                  let ua = navigator.userAgent.toLowerCase();
-                  this.isWeixin = ua.indexOf('micromessenger') != -1;
-                  if(this.isWeixin){
-                    //微信内置浏览器打开
-                    if (typeof WeixinJSBridge === 'undefined') {
-                      if (document.addEventListener) {
-                        document.addEventListener('WeixinJSBridgeReady', vm.onBridgeReady(data), false);
-                      } else if (document.attachEvent) {
-                        document.attachEvent('WeixinJSBridgeReady', vm.onBridgeReady(data));
-                        document.attachEvent('onWeixinJSBridgeReady', vm.onBridgeReady(data));
-                      }
-                    } else {
-                      vm.onBridgeReady(data);
+                if (res.data.haveOrder) {
+                  let orderInfo = res.data.orderInfo;
+                  //有未完成支付的订单
+                  if (orderInfo.type === 0) {
+                    this.$vux.toast.text('存在未付款的订单');
+                    let webUrl = orderInfo.webUrl;
+                    setTimeout(function () {
+                      window.location.href = webUrl + '&redirect_url=' + this.baseUrl + '/#/paySuc';
+                    },1000);
+                  } else {
+                    if (orderInfo.type === 1) {
+                      //已付完未结束订单
+                      this.$vux.toast.text('存在未结束订单');
+                    } else if (orderInfo.type === 6) {
+                      //设备异常
+                      this.$vux.toast.text('设备异常，请及时取消订单');
                     }
-                  }else{
-                    //普通浏览器打开
-                    window.location.href = data.mweb_url+'&redirect_url=' + this.baseUrl + '/#/paySuc';
+                    window.sessionStorage.setItem('orderData', JSON.stringify(orderData));
+                    this.$router.push({path: '/chargeDetail/infor'});
                   }
-                }else if(res.code=='1100'){
-                  this.$vux.toast.text('请重新登录');
-                  this.$router.replace({path:'/login'});
-                }else if(res.code=='2015'){
-                  //console.log(res.message);
-                  this.$router.push({path:'/chargeDetail/infor'});
+                } else {
+                  //没有未完成的订单，开始新建订单
+                  this.$store.state.payType = this.payType;
+                  //传入的money，单位为分
+                  let money = this.$store.state.chargeMoney * 100;
+                  let moneyFen = Number(money.toFixed(1));
+                  //预估时间 单位：分
+                  let time = Math.round(this.$store.state.useTime);
+                  //充电桩口
+                  let chargingId = this.$store.state.chargingId;
+                  this.sendHttp({
+                    url: this.baseUrl + '/order/newOrderByWechat', method: 'post', data: {
+                      userIp: ip,
+                      deviceSN: this.userData.deviceSN,
+                      chargingId: chargingId,
+                      money: moneyFen,
+                      useTime: time,
+                      payType: this.payType,
+                      phone: this.userData.phone,
+                      token: this.userData.authToken
+                    }
+                  }).then(res => {
+                    if (res.code == '200') {
+                      //console.log(res);
+                      //微信返回参数
+                      let data = res.data.wechatOrderInfo;
+                      this.orderNum = data.orderNum;
+                      //创建orderData存储
+                      let orderData = {};
+                      orderData.createTime = res.data.createTime; //创建时间
+                      orderData.deviceNum = this.equipmentInfor.deviceNum; //设备编号
+                      orderData.money = this.$store.state.chargeMoney;  //订单金额 单位：元
+                      orderData.orderLocation = this.equipmentInfor.deviceLocation;
+                      orderData.orderNum = this.orderNum;  //订单编号
+                      orderData.orderTime = time; //预计使用时长
+                      orderData.chargingId = chargingId; //充电桩口
+                      orderData.payType = this.payType; //支付方式
+                      window.sessionStorage.setItem('orderData', JSON.stringify(orderData));
+
+                      //判断打开方式
+                      let vm = this;
+                      let ua = navigator.userAgent.toLowerCase();
+                      this.isWeixin = ua.indexOf('micromessenger') != -1;
+                      if (this.isWeixin) {
+                        //微信内置浏览器打开
+                        if (typeof WeixinJSBridge === 'undefined') {
+                          if (document.addEventListener) {
+                            document.addEventListener('WeixinJSBridgeReady', vm.onBridgeReady(data), false);
+                          } else if (document.attachEvent) {
+                            document.attachEvent('WeixinJSBridgeReady', vm.onBridgeReady(data));
+                            document.attachEvent('onWeixinJSBridgeReady', vm.onBridgeReady(data));
+                          }
+                        } else {
+                          vm.onBridgeReady(data);
+                        }
+                      } else {
+                        //普通浏览器打开
+                        window.location.href = data.mweb_url + '&redirect_url=' + this.baseUrl + '/#/paySuc';
+                      }
+                    } else if (res.code == '1100') {
+                      this.$vux.toast.text('请重新登录');
+                      this.$router.replace({path: '/login'});
+                    }
+                  });
                 }
-              }).catch(error => {
-                console.log(error);
               });
             } else if (this.payType == 1) {
-              this.$store.state.payType = this.payType;
               //新建支付宝订单
+              this.$store.state.payType = this.payType;
               console.log('新建支付宝订单');
             }
-          }else{
+          } else {
             this.$vux.toast.text('请重新登录');
-            this.$router.replace({path:'/login'});
+            this.$router.replace({path: '/login'});
           }
         }
       },
@@ -155,7 +177,7 @@
                   this.$store.state.chargeBreakPop = true;
                   return false
                 } else if (listInfor[i].deviceStatus == 1) {
-                  this.$vux.toast.text('充电桩正在充电！');
+                  this.$vux.toast.text('充电口充电中...');
                   return false
                 } else {
                   return true
@@ -163,7 +185,7 @@
               }
             }
           } else {
-            this.$vux.toast.text('请选择充电桩！');
+            this.$vux.toast.text('请选择充电口！');
             return false
           }
         } else {
@@ -173,9 +195,9 @@
 
       },
       //微信支付内置对象
-      onBridgeReady (data) {
+      onBridgeReady(data) {
         let self = this;
-        let pkg = 'prepay_id='+data.prepay_id;
+        let pkg = 'prepay_id=' + data.prepay_id;
         WeixinJSBridge.invoke(
           'getBrandWCPayRequest', {
             'appId': data.appId, //公众号名称，由商户传入
