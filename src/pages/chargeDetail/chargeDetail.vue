@@ -56,24 +56,34 @@
       if (orderData) {
         this.orderInfor = orderData;
       }
+
+      //若充电结束，直接到结束页
+      if (orderData.isEnd) {
+        this.orderMsg.percent = 100;
+        this.$router.push({path: '/chargeDetail/end'});
+      }
+
       //获取预计时长
       this.getUseTime();
       //获取开始时间
       this.getStartTime();
     },
-    mounted(){
+    mounted() {
       //销毁定时器
-      if (this.orderInfor.isEnd === true || this.ChargeFinish() === false) {
+      if (this.orderInfor.isEnd || this.ChargeFinish() === false) {
         clearTimeout(this.timer);
+
       } else {
         this.timer = setInterval(this.getChargeTime, 1000);
         //获取已充电时长
         this.getChargeTime();
+        //console.log(this.orderInfor);
       }
+
     },
     destroyed() {
       //销毁定时器
-      if (this.orderInfor.isEnd == true || this.ChargeFinish() == false) {
+      if (this.orderInfor.isEnd || this.ChargeFinish() == false) {
         clearTimeout(this.timer);
       }
     },
@@ -82,7 +92,7 @@
       hidePop() {
         this.$store.state.cancelChargePop = false;
       },
-      getStartTime(){
+      getStartTime() {
         //获取开始时间
         let createTime = this.orderInfor.createTime;
         let timeArr = (createTime || '').split(" ");
@@ -90,36 +100,42 @@
       },
       //获取已充电时长
       getChargeTime() {
-        this.getStartTime();
-        //创建时间戳
-        if (createTime) {
-          let StartTime = new Date(createTime);
-          let beforeTime = Date.parse(StartTime);
-          //获取当前时间
-          let timestamp = Date.parse(new Date());
-          //时间差（min）
-          let time = Math.round(parseInt((timestamp - beforeTime) / (1000 * 60)));
-          //console.log(time);
-          let hour = Math.floor(time / 60);
-          //获取分钟数
-          let minute = time % 60;
+        if (this.orderInfor.isEnd) {
 
-          //获取充值具体时间（X小时X分钟）
-          if (hour == 0 && minute == 0) {
-            this.orderMsg.chargeTime = '0小时1分';
-          } else {
-            this.orderMsg.chargeTime = hour.toString() + '小时' + minute.toString() + '分';
+        } else {
+          this.getStartTime();
+          //创建时间戳
+          let createTime = this.orderInfor.createTime;
+          if (createTime) {
+            let StartTime = new Date(createTime);
+            let beforeTime = Date.parse(StartTime);
+            //获取当前时间
+            let timestamp = Date.parse(new Date());
+            //时间差（min）
+            let time = Math.round(parseInt((timestamp - beforeTime) / (1000 * 60)));
+            //console.log(time);
+            let hour = Math.floor(time / 60);
+            //获取分钟数
+            let minute = time % 60;
+
+            //获取充值具体时间（X小时X分钟）
+            if (hour === 0 && minute === 0) {
+              this.orderMsg.chargeTime = '0小时1分';
+            } else {
+              //this.orderMsg.chargeTime = hour.toString() + '小时' + minute.toString() + '分';
+              this.orderMsg.chargeTime = `${hour}小时${minute}分`;
+            }
+            //获取已充电的总分钟数
+            this.orderMsg.chargeMin = hour * 60 + minute;
+            if (this.orderMsg.chargeMin < 1) {
+              this.orderMsg.chargeMin = 1;
+            }
           }
-          //获取已充电的总分钟数
-          this.orderMsg.chargeMin = hour * 60 + minute;
-          if (this.orderMsg.chargeMin < 1) {
-            this.orderMsg.chargeMin = 1;
-          }
+          //获取订单进度百分数
+          this.getPercent();
+          //判断订单是否已到结束时间
+          this.ChargeFinish();
         }
-        //获取订单进度百分数
-        this.getPercent();
-        //判断订单是否已到结束时间
-        this.ChargeFinish();
       },
       //获取订单是否已完成充电
       ChargeFinish() {
@@ -138,7 +154,7 @@
             let mimute = dates.getMinutes();
             let second = dates.getSeconds();
             let orderData = JSON.parse(window.sessionStorage.getItem('orderData'));
-            if(!orderData.endTime){
+            if (!orderData.endTime) {
               let endTime = hour + ':' + mimute + ':' + second;
               orderData.endTime = endTime;
             }
@@ -184,7 +200,7 @@
         let endTime = hour + ':' + mimute + ':' + second;
         this.orderInfor.endTime = endTime;
         this.orderInfor.isEnd = true;
-        window.sessionStorage.setItem('orderData', this.orderInfor);
+        window.sessionStorage.setItem('orderData', JSON.stringify(this.orderInfor));
         //支付方式
         if (this.orderInfor.payType) {
           //结束支付宝支付的订单
@@ -205,7 +221,7 @@
               token: token
             }
           }).then(res => {
-            console.log(res);
+            //console.log(res);
             if (res.code == '200') {
               this.$store.state.cancelChargePop = false;
               //订单话费金额  总金额减去退款金额
@@ -214,18 +230,17 @@
               this.orderInfor.isEnd = true;
               window.sessionStorage.setItem('orderData', JSON.stringify(this.orderInfor));
               this.endInfor();
+              this.$router.push('/chargeDetail/end');
             }
           });
         }
-        //this.orderInfor.isEnd = true;
+
       },
       //充电百分数
       getPercent() {
         if (this.orderInfor.orderTime) {
           let percent = (this.orderMsg.chargeMin / this.orderInfor.orderTime) * 100;
           this.orderMsg.percent = percent;
-        } else {
-          this.orderMsg.percent = 100;
         }
       }
     }

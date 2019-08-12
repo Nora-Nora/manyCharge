@@ -32,11 +32,11 @@
     },
     created() {
       //获取内存手机号
-      let phoneNum = window.localStorage.getItem('phoneNum');
-      if (phoneNum) {
+      let userData = JSON.parse(window.localStorage.getItem('userData'));
+      if(userData){
+        let phoneNum = userData.phone;
         this.phoneNum = phoneNum;
       }
-
     },
     updated() {
       if (this.yzCode !== '') {
@@ -71,9 +71,6 @@
                 //存储用户登录信息到session
                 let userData = res.data;
                 window.localStorage.setItem('userData', JSON.stringify(userData));
-                //用户手机号、deviceSN码存到localStrorage
-                //window.localStorage.setItem('phoneNum', userData.phone);
-                //window.localStorage.setItem('deviceSN', userData.deviceSN);
                 //获取用户未完成订单
                 this.sendHttp({
                   url: this.baseUrl + '/order/getUnfinishedOrder', method: 'post', data: {
@@ -87,14 +84,14 @@
                       let orderData = res.data.orderInfo;
                       if (orderData.type === 0) {
                         this.$vux.toast.text('存在未付款的订单');
-                        let webUrl = orderData.webUrl;
+                        let redirect_url = this.hostName + "/#/paySuc";
+                        let url = encodeURIComponent(redirect_url);
                         setTimeout(function () {
-                          window.location.href = webUrl + '&redirect_url=' + this.baseUrl + '/#/paySuc';
+                          window.location.href = orderData.webUrl + "&redirect_url="+ url;
                         },1000);
-
                       }else{
-                        if(orderData.type === 1){
-                          //已付完未结束订单
+                        if(orderData.type === 4){
+                          //充电桩正在使用
                           this.$vux.toast.text('存在未结束订单');
                         }else if(orderData.type === 6){
                           //设备异常

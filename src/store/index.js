@@ -19,18 +19,14 @@ export default new Vuex.Store({
     //预计时间
     useTime: Number,
     //设备编号
-    deviceNum: '',
+    //deviceNum: '',
     //第一次扫描充电桩SN码
     deviceSN: '98CC4D200056',
-    //用户id
-    userId:Number, //d
     //订单编号
-    orderNum:'',
+    //orderNum:'',
     //是否含有未完成订单
-    haveOrder:false,
-    //用户信息
-    userData:{},
-    chargeEnd:false
+    //haveOrder:false,
+    //chargeEnd:false
 
   },
   mutations: {

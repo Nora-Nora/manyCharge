@@ -16,8 +16,19 @@
     components:{
       loginHead,
       phoneCheck
+    },
+    data(){
+      return{
+        userData:{}
+      }
+    },
+    created() {
+      let userData = JSON.parse(window.localStorage.getItem('userData'));
+      if(userData){
+        this.userData = userData;
+        this.$router.push({path:'/'});
+      }
     }
-
   }
 </script>
 

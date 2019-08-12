@@ -13,7 +13,6 @@
       <router-link to="/chargeDetail/infor">查看充电详情</router-link>
     </btn>
   </div>
-  </div>
 </template>
 
 <script>

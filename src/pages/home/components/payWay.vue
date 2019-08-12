@@ -58,12 +58,12 @@
           //获取用户ip
           let ip = returnCitySN["cip"];
           this.userIp = ip;
-          if (ip && this.userData) {
+          let userData = JSON.parse(window.localStorage.getItem('userData'));
+          if (ip && userData) {
             //console.log(this.userIp);
             //微信支付
             if (this.payType == 0) {
               //新建订单前判断是否有支付异常的订单
-              let userData = JSON.parse(window.localStorage.getItem('userData'));
               this.sendHttp({
                 url: this.baseUrl + '/order/getUnfinishedOrder', method: 'get', data: {
                   id: userData.userId
@@ -71,23 +71,25 @@
               }).then(res => {
                 if (res.data.haveOrder) {
                   let orderInfo = res.data.orderInfo;
-                  //有未完成支付的订单
+                  //有未支付的订单
                   if (orderInfo.type === 0) {
                     this.$vux.toast.text('存在未付款的订单');
                     let webUrl = orderInfo.webUrl;
+                    let hostName = this.hostName;
                     setTimeout(function () {
-                      window.location.href = webUrl + '&redirect_url=' + this.baseUrl + '/#/paySuc';
+                      window.location.href = webUrl + '&redirect_url=' + hostName + '/#/paySuc';
                     },1000);
                   } else {
-                    if (orderInfo.type === 1) {
-                      //已付完未结束订单
+                    if (orderInfo.type === 4) {
+                      //充电桩正在使用
                       this.$vux.toast.text('存在未结束订单');
                     } else if (orderInfo.type === 6) {
                       //设备异常
                       this.$vux.toast.text('设备异常，请及时取消订单');
                     }
-                    window.sessionStorage.setItem('orderData', JSON.stringify(orderData));
+                    window.sessionStorage.setItem('orderData', JSON.stringify(orderInfo));
                     this.$router.push({path: '/chargeDetail/infor'});
+                    //console.log(orderInfo.type);
                   }
                 } else {
                   //没有未完成的订单，开始新建订单
@@ -145,8 +147,10 @@
                           vm.onBridgeReady(data);
                         }
                       } else {
+                        let redirect_url =this.hostName + "/#/paySuc";
+                        let url = encodeURIComponent(redirect_url);
                         //普通浏览器打开
-                        window.location.href = data.mweb_url + '&redirect_url=' + this.baseUrl + '/#/paySuc';
+                        window.location.href = data.mweb_url + "&redirect_url="+ url;
                       }
                     } else if (res.code == '1100') {
                       this.$vux.toast.text('请重新登录');

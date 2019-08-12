@@ -36,7 +36,7 @@
       //刷新页面
       refresh(){
         //this.reload();
-        let userData = JSON.parse(window.sessionStorage.getItem('userData'));
+        let userData = JSON.parse(window.localStorage.getItem('userData'));
         let deviceSN = userData.deviceSN;
         if(deviceSN){
           this.$parent.getEquipmentInfor(deviceSN);

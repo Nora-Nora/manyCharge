@@ -19,8 +19,8 @@
 
     </div>
     <div class="right">
-      <div class="text">{{ orderMsg.isEnd?'充电结束':'正在充电…'}}({{ orderInfor.chargingId }}号)</div>
-      <div :class="['cancel',{'finish':orderMsg.isEnd}]" @click="showPop">取消充电</div>
+      <div class="text">{{ orderInfor.isEnd?'充电结束':'正在充电…'}}({{ orderInfor.chargingAddr-1 }}号)</div>
+      <div :class="['cancel',{'finish':orderInfor.isEnd}]" @click="showPop">取消充电</div>
     </div>
     <div class="refresh" @click="refresh"></div>
   </div>
@@ -44,7 +44,7 @@
     props: ['orderInfor', 'orderMsg'],
     methods: {
       showPop() {
-        if (this.orderMsg.isEnd) {
+        if (this.orderInfor.isEnd) {
           this.$store.state.cancelChargePop = false;
         } else {
           //isEnd为false，订单没有结束，弹出是否结束的提示框
@@ -54,7 +54,6 @@
       refresh() {
         //刷新页面
         this.reload();
-        this.orderMsg.isEnd = this.$store.state.isEnd;
       }
     }
   }

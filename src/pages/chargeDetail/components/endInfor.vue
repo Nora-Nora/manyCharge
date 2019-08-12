@@ -8,7 +8,7 @@
         </li>
         <li>
           <div class="left">结束时间</div>
-          <div class="right">{{ orderMsg.endTime }}</div>
+          <div class="right">{{ orderInfor.endTime }}</div>
         </li>
         <li>
           <div class="left">充电时长</div>
@@ -16,11 +16,11 @@
         </li>
         <li>
           <div class="left">充电费用</div>
-          <div class="right">{{ orderMsg.useMoney }}元</div>
+          <div class="right">{{ orderInfor.useMoney }}元</div>
         </li>
         <li class="backMoney">
           <div class="left">退款金额</div>
-          <div class="right">{{ orderMsg.backMoney }}元</div>
+          <div class="right">{{ orderInfor.backMoney }}元</div>
         </li>
       </ul>
     </div>
@@ -71,6 +71,7 @@
     },
     props:['orderInfor','orderMsg'],
     created() {
+      //console.log(this.orderInfor);
       this.$store.state.chargePercent = 100;
       this.getTime();
     },

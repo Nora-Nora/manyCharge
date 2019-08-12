@@ -44,10 +44,9 @@
       //获取用户信息存储
       let userData = JSON.parse(window.localStorage.getItem('userData'));
       if(userData){
-        this.$store.state.userData = userData;
         this.userData = userData;
         let deviceSN = userData.deviceSN;
-        //this.$store.state.deviceSN = deviceSN;
+        this.$store.state.deviceSN = deviceSN;
         this.getEquipmentInfor(deviceSN);
       }else{
         this.$router.push({path:'/login'});
@@ -74,7 +73,7 @@
             methods: 'get',
             data: {'deviceSN': deviceSN}
           }).then(res => {
-            console.log(res);
+            //console.log(res);
             if (res.code == '200') {
               that.equipmentInfor = res.data;
               that.equipmentInfor.chargingVOList = res.data.chargingVOList;

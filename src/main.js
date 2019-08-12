@@ -23,14 +23,19 @@ Vue.prototype.sendHttp = sendHttp
 // 给输入框自动获取焦点
 Vue.directive('focus', {
   inserted: function (el) {
-    el.focus()
+    el.focus();
   }
 });
 
 //测试环境
-//Vue.prototype.baseUrl = 'http://192.168.5.8:12402';
+Vue.prototype.baseUrl = 'http://192.168.5.8:12402';
 //生产环境
-Vue.prototype.baseUrl = 'http://api.share.duoduiduo.com';
+//Vue.prototype.baseUrl = 'http://api.share.duoduiduo.com';
+
+
+//生产域名
+Vue.prototype.hostName = 'http://share.duoduiduo.com';
+
 
 /* eslint-disable no-new */
 new Vue({
