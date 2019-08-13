@@ -24,7 +24,7 @@ export default new Vuex.Store({
     deviceSN: '98CC4D200056',
     //订单编号
     //orderNum:'',
-    //是否含有未完成订单
+    //是否含有未完成de订单
     //haveOrder:false,
     //chargeEnd:false
 
