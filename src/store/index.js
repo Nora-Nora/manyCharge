@@ -21,7 +21,7 @@ export default new Vuex.Store({
     //设备编号
     //deviceNum: '',
     //第一次扫描充电桩SN码
-    deviceSN: '98CC4D200056',
+    deviceSN: '98CC4D200056'
     //订单编号
     //orderNum:'',
     //是否含有未完成de订单
