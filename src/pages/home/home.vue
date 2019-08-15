@@ -61,6 +61,7 @@
         equipmentInfor: {},
       }
     },
+
     methods: {
       hidePop() {
         this.$store.state.chargeBreakPop = false;

@@ -12,47 +12,52 @@
     <div class="selectEquipment">
       <ul>
         <li v-for="item in equipmentInfor.chargingVOList"
-            :class="[{selected:selectedChargeId==item.chargingAddr-1},{charging:item.deviceStatus===1},{break:item.deviceStatus===-1}]" @click="addSelected(item.chargingAddr-1,item.id)">{{item.deviceStatus===0 ? item.chargingAddr-1:''}}</li>
+            :class="[{selected:selectedChargeId==item.chargingAddr-1},{charging:item.deviceStatus===1},{break:item.deviceStatus===-1}]"
+            @click="addSelected(item.chargingAddr-1,item.id)">{{item.deviceStatus===0 ? item.chargingAddr-1:''}}
+        </li>
       </ul>
       <div class="selectedNum">{{ selectedChargeId===0 ?'请点击上方选择充电桩':'已选：'+selectedChargeId+'号充电桩'}}</div>
     </div>
   </div>
 </template>
 <script>
-  export default {
-    name: "rechargeSelect",
-    data() {
-      return {
-        selectedChargeId:0
-      }
-    },
-    props:['equipmentInfor'],
-    methods:{
-      addSelected(num,id){
-        //console.log(id);
-        this.$store.state.chargingId = id;
-        this.selectedChargeId = num;
-      },
-      //刷新页面
-      refresh(){
-        //this.reload();
-        let userData = JSON.parse(window.localStorage.getItem('userData'));
-        let deviceSN = userData.deviceSN;
-        if(deviceSN){
-          this.$parent.getEquipmentInfor(deviceSN);
-          this.selectedChargeId = 0;
+    export default {
+        name: "rechargeSelect",
+        data() {
+            return {
+                selectedChargeId: 0
+            }
+        },
+        props: ['equipmentInfor'],
+        methods: {
+            addSelected(num, id) {
+                //console.log(id);
+                this.$store.state.chargingId = id;
+                this.selectedChargeId = num;
+            },
+            //刷新页面
+            refresh() {
+                //this.reload();
+                let userData = JSON.parse(window.localStorage.getItem('userData'));
+                let deviceSN = userData.deviceSN;
+                if (deviceSN) {
+                    this.$parent.getEquipmentInfor(deviceSN);
+                    this.selectedChargeId = 0;
+                    this.$store.state.chargingId = 0;
+                }
+            }
         }
-      }
-    }
 
-  }
+    }
 </script>
 
 <style scoped lang="less">
   @import "~@/assets/style/common.less";
+
   .chargeBox {
     background: #fff;
     padding: 16px 0;
+
     .tipsIcon {
       padding-left: 23px;
       font-size: 12px;
@@ -111,6 +116,7 @@
 
     .selectEquipment {
       overflow: hidden;
+
       ul {
         display: flex;
         flex-wrap: wrap;
@@ -127,23 +133,27 @@
           color: @themeColor;
           text-align: center;
           font-size: 15px;
-          margin:0 27px 16px 0;
-          &.selected{
+          margin: 0 27px 16px 0;
+
+          &.selected {
             background: url("~imgUrl/home/chargeIcon.png") #FFA81F center center no-repeat;
             background-size: 35%;
-            color: rgba(0,0,0,0);
+            color: rgba(0, 0, 0, 0);
 
           }
-          &.break{
+
+          &.break {
             background: url("~imgUrl/home/breakIcon.png") #A2A2A2 center center no-repeat;
             background-size: 35%;
-           }
-          &.charging{
+          }
+
+          &.charging {
             background: url("~imgUrl/home/chargeIcon.png") @themeColor center center no-repeat;
             background-size: 35%;
           }
         }
       }
+
       .selectedNum {
         text-align: right;
         color: #8D95A6;

@@ -29,7 +29,7 @@
       }
     },
     created() {
-      this.checkOrder();
+      //this.checkOrder();
       let orderData = JSON.parse(window.sessionStorage.getItem('orderData'));
       this.orderData = orderData;
     },
@@ -110,7 +110,10 @@
       color: @themeColor;
       margin-bottom: 291px;
     }
-
+    .btn{
+      position: absolute;
+      bottom: 31px;
+    }
     .toDetails {
       position: absolute;
       bottom: 31px;

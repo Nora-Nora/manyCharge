@@ -12,14 +12,14 @@
         :stroke-width="54"
       >
         <div class="center">
-          <p class="text">{{ orderMsg.isEnd?'充电时长':'已充电'}}</p>
-          <p class="time">{{ orderMsg.chargeTime }}</p>
+          <p class="text">{{ orderInfor.isEnd?'充电时长':'已充电'}}</p>
+          <p class="time">{{ orderInfor.chargeTime?orderInfor.chargeTime:orderMsg.chargeTime }}</p>
         </div>
       </van-circle>
 
     </div>
     <div class="right">
-      <div class="text">{{ orderInfor.isEnd?'充电结束':'正在充电…'}}({{ orderInfor.chargingAddr-1 }}号)</div>
+      <div class="text">{{ orderInfor.isEnd?'充电结束':'正在充电…'}}({{ orderInfor.chargingAddr }}号)</div>
       <div :class="['cancel',{'finish':orderInfor.isEnd}]" @click="showPop">取消充电</div>
     </div>
     <div class="refresh" @click="refresh"></div>
@@ -27,36 +27,36 @@
 </template>
 <script>
 
-  export default {
-    name: "detailHead",
-    // 注入reload, AppVue中注册
-    inject: ['reload'],
-    data() {
-      return {
-        currentRate: 0
-      }
-    },
-    updated() {
-      if (this.orderMsg.isEnd == true) {
-        this.orderMsg.percent = 100;
-      }
-    },
-    props: ['orderInfor', 'orderMsg'],
-    methods: {
-      showPop() {
-        if (this.orderInfor.isEnd) {
-          this.$store.state.cancelChargePop = false;
-        } else {
-          //isEnd为false，订单没有结束，弹出是否结束的提示框
-          this.$store.state.cancelChargePop = true;
+    export default {
+        name: "detailHead",
+        // 注入reload, AppVue中注册
+        inject: ['reload'],
+        data() {
+            return {
+                currentRate: 0
+            }
+        },
+        updated() {
+            if (this.orderMsg.isEnd == true) {
+                this.orderMsg.percent = 100;
+            }
+        },
+        props: ['orderInfor', 'orderMsg'],
+        methods: {
+            showPop() {
+                if (this.orderInfor.isEnd) {
+                    this.$store.state.cancelChargePop = false;
+                } else {
+                    //isEnd为false，订单没有结束，弹出是否结束的提示框
+                    this.$store.state.cancelChargePop = true;
+                }
+            },
+            refresh() {
+                //刷新页面
+                this.reload();
+            }
         }
-      },
-      refresh() {
-        //刷新页面
-        this.reload();
-      }
     }
-  }
 </script>
 
 <style scoped lang="less">

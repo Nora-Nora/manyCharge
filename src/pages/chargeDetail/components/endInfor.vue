@@ -12,7 +12,7 @@
         </li>
         <li>
           <div class="left">充电时长</div>
-          <div class="right">{{ orderMsg.chargeTime }}</div>
+          <div class="right">{{ orderInfor.chargeTime }}</div>
         </li>
         <li>
           <div class="left">充电费用</div>
@@ -49,7 +49,7 @@
         </li>
         <li>
           <div class="left">定位地址</div>
-          <div class="right address">{{ orderInfor.orderLocation }}充电桩（{{ orderInfor.chargingId }}号）</div>
+          <div class="right address">{{ orderInfor.orderLocation }}充电桩（{{ orderInfor.chargingAddr }}号）</div>
         </li>
       </ul>
     </div>
