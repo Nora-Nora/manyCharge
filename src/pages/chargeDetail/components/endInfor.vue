@@ -16,11 +16,11 @@
         </li>
         <li>
           <div class="left">充电费用</div>
-          <div class="right">{{ orderInfor.useMoney }}元</div>
+          <div class="right">{{ orderInfor.useMoney/100 }}元</div>
         </li>
         <li class="backMoney">
           <div class="left">退款金额</div>
-          <div class="right">{{ orderInfor.backMoney }}元</div>
+          <div class="right">{{ orderInfor.backMoney/100 }}元</div>
         </li>
       </ul>
     </div>

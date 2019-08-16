@@ -32,7 +32,6 @@
             }
         },
         created() {
-
         },
         components: {
             btn,
@@ -48,6 +47,7 @@
         },
         props: ['equipmentInfor', 'userData'],
         methods: {
+            //获取支付方式
             paySelect(num) {
                 this.payType = num;
                 this.$store.state.payType = num;
@@ -60,7 +60,6 @@
                     this.userIp = ip;
                     let userData = JSON.parse(window.localStorage.getItem('userData'));
                     if (ip && userData) {
-                        //console.log(this.userIp);
                         //微信支付
                         if (this.payType == 0) {
                             //新建订单前判断是否有支付异常的订单
@@ -69,8 +68,9 @@
                                     id: userData.userId
                                 }
                             }).then(res => {
-                                if (res.data.haveOrder) {
+                                if (res.data.haveOrder && res.code=='200') {
                                     let orderInfo = res.data.orderInfo;
+                                    orderInfo.money = Number(orderInfo.money);
                                     orderInfo.isEnd = false;
                                     window.sessionStorage.setItem('orderData',JSON.stringify(orderInfo));
                                     //有未支付的订单
@@ -145,7 +145,7 @@
                                                 let orderData = {};
                                                 orderData.createTime = res.data.createTime; //创建时间
                                                 orderData.deviceNum = this.equipmentInfor.deviceNum; //设备编号
-                                                orderData.money = this.$store.state.chargeMoney;  //订单金额 单位：元
+                                                orderData.money = Number(moneyFen)/100;  //订单金额 单位：元
                                                 orderData.orderLocation = this.equipmentInfor.deviceLocation;
                                                 orderData.orderNum = this.orderNum;  //订单编号
                                                 orderData.orderTime = time; //预计使用时长

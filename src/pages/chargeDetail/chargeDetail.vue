@@ -67,18 +67,17 @@
                 this.timer = setInterval(this.getChargeTime, 1000);
                 //获取已充电时长
                 this.getChargeTime();
-                //console.log(this.orderInfor);
             }
-
-
-
         },
         destroyed() {
             //销毁定时器
             if (this.orderInfor.isEnd || this.ChargeFinish() == false) {
                 clearTimeout(this.timer);
             }
-        },
+
+            this.upDateData();
+        }
+        ,
         methods: {
             //更新数据
             upDateData(){
@@ -177,7 +176,8 @@
                             let endTime = hour + ':' + mimute + ':' + second;
                             orderData.endTime = endTime;
                         }
-                        orderData.useMoney = this.orderInfor.money;
+                        //userMoney 充电费用，单位：分
+                        orderData.useMoney = Number(this.orderInfor.money)*100;
                         orderData.backMoney = 0;
                         this.orderInfor = orderData;
                         window.sessionStorage.setItem('orderData', JSON.stringify(orderData));

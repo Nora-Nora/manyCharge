@@ -47,14 +47,18 @@ baseRequest.interceptors.response.use(
 // 处理返回
 function responseReturn(response) {
   let res = response.data;
-  if (res.code == '200' || res.code == '0') {
+  if (res.code == '200') {
     return res;
   } else if (res.code == '1000') {
     //系统错误（用户token值过期，提示用户重新登录）;
     Vue.$vux.toast.text('请重新登录');
+    //清理用户信息，保留手机号码存储
+    let userData = {};
+    let user = JSON.parse(window.localStorage.getItem('userData'));
+    userData.phone = user.phone;
+    window.localStorage.setItem('orderData',JSON.stringify(userData));
     router.push('/login');
     window.sessionStorage.clear();
-    window.localStorage.clear();
     // // 用户端登录丢失
     // let appointProjectCode = window.localStorage.getItem('appointProjectCode');
     // window.sessionStorage.clear();

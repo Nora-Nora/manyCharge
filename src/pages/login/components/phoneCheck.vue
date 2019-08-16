@@ -82,7 +82,6 @@
                     if(res.data.haveOrder){
                       //有未完成支付的订单
                       let orderData = res.data.orderInfo;
-                      window.sessionStorage.setItem('orderData',JSON.stringify(orderData));
                       if (orderData.type === 0) {
                         this.$vux.toast.text('存在未付款的订单');
                         let redirect_url = this.hostName + "/#/paySuc";

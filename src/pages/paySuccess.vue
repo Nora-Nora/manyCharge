@@ -16,46 +16,57 @@
 </template>
 
 <script>
-  import btn from '@/components/btn'
+    import btn from '@/components/btn'
 
-  export default {
-    name: "paySuccess",
-    components: {
-      btn
-    },
-    data(){
-      return{
-        orderData:{}
-      }
-    },
-    created() {
-      //this.checkOrder();
-      let orderData = JSON.parse(window.sessionStorage.getItem('orderData'));
-      this.orderData = orderData;
-    },
-    methods: {
-      //订单时候异常
-      checkOrder() {
-        let userData = window.sessionStorage.getItem('userData');
-        if (userData) {
-          let id = userData.userId;
-          this.sendHttp({
-            url: this.baseUrl + '/order/getUnfinishedOrder', method: 'get', data: {
-              id: id
+    export default {
+        name: "paySuccess",
+        components: {
+            btn
+        },
+        data() {
+            return {
+                orderData: {}
             }
-          }).then(res=>{
-            if(res.data=='200'){
-              let type = data.orderInfo.type;
-              if(type===1){
-                //当前设备故障，提示退款
-                this.$vux.toast('当前设备故障,请取消订单');
-              }
+        },
+        created() {
+            let orderData = JSON.parse(window.sessionStorage.getItem('orderData'));
+            if (orderData) {
+                this.orderData = orderData;
+            } else {
+                this.$router.push({path: '/'});
             }
-          });
+
+            //判断用户是否已完成支付
+            this.checkOrder();
+
+        },
+        methods: {
+            //订单时候异常
+            checkOrder() {
+                let userData = window.localStorage.getItem('userData');
+                if (userData) {
+                    let id = userData.userId;
+                    this.sendHttp({
+                        url: this.baseUrl + '/order/getUnfinishedOrder', method: 'get', data: {
+                            id: id
+                        }
+                    }).then(res => {
+                        if (res.data == '200') {
+                            if (res.data.havaOrder) {
+                                let type = res.data.orderInfo.type;
+                                if (type == 0) {
+                                    this.$vux.toast.text('支付取消');
+                                    this.$router.push({path: '/'});
+                                }
+                            } else {
+                                this.$router.push({path: '/'});
+                            }
+                        }
+                    });
+                }
+            }
         }
-      }
     }
-  }
 </script>
 
 <style scoped lang="less">
@@ -110,10 +121,12 @@
       color: @themeColor;
       margin-bottom: 291px;
     }
-    .btn{
+
+    .btn {
       position: absolute;
       bottom: 31px;
     }
+
     .toDetails {
       position: absolute;
       bottom: 31px;
