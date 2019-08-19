@@ -6,6 +6,8 @@ export default new Vuex.Store({
   state: {
     //当前充电桩id
     chargingId: 0,
+    //当前充电口号
+    chargingNum:0,
     //取消充电的弹出状态
     cancelChargePop: false,
     //充电桩故障弹出状态

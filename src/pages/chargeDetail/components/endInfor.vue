@@ -49,7 +49,7 @@
         </li>
         <li>
           <div class="left">定位地址</div>
-          <div class="right address">{{ orderInfor.orderLocation }}充电桩（{{ orderInfor.chargingAddr }}号）</div>
+          <div class="right address">{{ orderInfor.orderLocation }}充电桩（{{ Number(orderInfor.chargingAddr)-1 }}号）</div>
         </li>
       </ul>
     </div>

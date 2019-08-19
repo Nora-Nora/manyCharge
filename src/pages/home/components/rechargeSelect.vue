@@ -33,18 +33,22 @@
             addSelected(num, id) {
                 //console.log(id);
                 this.$store.state.chargingId = id;
+                this.$store.state.chargingNum = num;
                 this.selectedChargeId = num;
             },
             //刷新页面
             refresh() {
                 //this.reload();
                 let userData = JSON.parse(window.localStorage.getItem('userData'));
-                let deviceSN = userData.deviceSN;
-                if (deviceSN) {
+                if (userData && userData.deviceSN) {
+                    let deviceSN = userData.deviceSN;
                     this.$parent.getEquipmentInfor(deviceSN);
                     this.selectedChargeId = 0;
                     this.$store.state.chargingId = 0;
+                    this.$store.state.chargingNum = 0;
                 }
+
+
             }
         }
 

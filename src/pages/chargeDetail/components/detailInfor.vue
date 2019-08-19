@@ -9,7 +9,7 @@
         <li><span class="left">支付方式</span><span class="right">{{ orderInfor.payType==1?'支付宝支付':'微信支付' }}</span></li>
         <li><span class="left">预付金额</span><span class="right">{{ orderInfor.money }}元</span></li>
         <li><span class="left">定位地址</span><span class="right">{{ orderInfor.orderLocation }}充电桩（{{
-          orderInfor.chargingAddr }}号）</span></li>
+          Number(orderInfor.chargingAddr)-1 }}号）</span></li>
       </ul>
     </div>
     <div class="tips">5分钟内（不含5分钟）未充电成功，可退还全款</div>

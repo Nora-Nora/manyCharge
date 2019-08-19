@@ -16,7 +16,7 @@
 </template>
 
 <script>
-    import btn from '@/components/btn'
+  import btn from '@/components/btn'
 
     export default {
         name: "paySuccess",
@@ -29,6 +29,9 @@
             }
         },
         created() {
+            //判断用户是否已完成支付
+            this.checkOrder();
+            //获取订单信息
             let orderData = JSON.parse(window.sessionStorage.getItem('orderData'));
             if (orderData) {
                 this.orderData = orderData;
@@ -36,30 +39,25 @@
                 this.$router.push({path: '/'});
             }
 
-            //判断用户是否已完成支付
-            this.checkOrder();
-
         },
         methods: {
             //订单时候异常
             checkOrder() {
-                let userData = window.localStorage.getItem('userData');
-                if (userData) {
+                let userData = JSON.parse(window.localStorage.getItem('userData'));
+                if (userData.userId!==null || userData.userId!==undefined ) {
                     let id = userData.userId;
                     this.sendHttp({
                         url: this.baseUrl + '/order/getUnfinishedOrder', method: 'get', data: {
                             id: id
                         }
                     }).then(res => {
-                        if (res.data == '200') {
-                            if (res.data.havaOrder) {
+                        if (res.code == '200') {
+                            if (res.data.orderInfo) {
                                 let type = res.data.orderInfo.type;
                                 if (type == 0) {
                                     this.$vux.toast.text('支付取消');
                                     this.$router.push({path: '/'});
                                 }
-                            } else {
-                                this.$router.push({path: '/'});
                             }
                         }
                     });
@@ -121,8 +119,7 @@
       color: @themeColor;
       margin-bottom: 291px;
     }
-
-    .btn {
+    .btn{
       position: absolute;
       bottom: 31px;
     }

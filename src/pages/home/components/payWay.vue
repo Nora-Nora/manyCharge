@@ -59,7 +59,7 @@
                     let ip = returnCitySN["cip"];
                     this.userIp = ip;
                     let userData = JSON.parse(window.localStorage.getItem('userData'));
-                    if (ip && userData) {
+                    if (ip && userData && userData.userId) {
                         //微信支付
                         if (this.payType == 0) {
                             //新建订单前判断是否有支付异常的订单
@@ -149,18 +149,16 @@
                                                 orderData.orderLocation = this.equipmentInfor.deviceLocation;
                                                 orderData.orderNum = this.orderNum;  //订单编号
                                                 orderData.orderTime = time; //预计使用时长
-                                                orderData.chargingId = chargingId; //充电桩口
+                                                orderData.chargingId = chargingId; //充电桩口id
                                                 orderData.payType = this.payType; //支付方式
                                                 orderData.isEnd = false;
+                                                orderData.chargingAddr = this.$store.state.chargingNum;
                                                 window.sessionStorage.setItem('orderData', JSON.stringify(orderData));
                                                 //微信支付成功的回调地址
                                                 let redirect_url = this.hostName + "/#/paySuc";
                                                 let url = encodeURIComponent(redirect_url);
                                                 //普通浏览器打开
                                                 window.location.href = data.mweb_url + "&redirect_url=" + url;
-                                            } else if (res.code == '1100') {
-                                                this.$vux.toast.text('请重新登录');
-                                                this.$router.replace({path: '/login'});
                                             }
                                         });
                                     }

@@ -2,40 +2,45 @@
   <div class="login">
     <div class="loginBox">
       <login-head/>
-      <phone-check />
+      <phone-check/>
     </div>
   </div>
 </template>
 
 <script>
-  import loginHead from './components/loginHeader'
-  import phoneCheck from './components/phoneCheck'
+    import loginHead from './components/loginHeader'
+    import phoneCheck from './components/phoneCheck'
 
-  export default {
-    name: "login",
-    components:{
-      loginHead,
-      phoneCheck
-    },
-    data(){
-      return{
-        userData:{}
-      }
-    },
-    created() {
-      let userData = JSON.parse(window.localStorage.getItem('userData'));
-      if(userData){
-        this.userData = userData;
-        this.$router.push({path:'/'});
-      }
+    export default {
+        name: "login",
+        components: {
+            loginHead,
+            phoneCheck
+        },
+        data() {
+            return {
+                userData: {}
+            }
+        },
+        created() {
+            let userData = JSON.parse(window.localStorage.getItem('userData'));
+            if(userData){
+                if(userData.userId){
+                    this.userData = userData;
+                    window.localStorage.setItem('phone',userData.phone);
+                    this.$router.push({path: '/'});
+
+                }
+            }
+        }
     }
-  }
 </script>
 
 <style scoped lang="less">
   .login {
     background: #fff;
-    .loginBox{
+
+    .loginBox {
       width: 327px;
       margin: 0 auto;
     }

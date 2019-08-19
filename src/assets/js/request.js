@@ -13,9 +13,13 @@ let authRequest = axios.create({});
 // authRequest请求拦截器
 authRequest.interceptors.request.use(
   config => {
-    if (localStorage.getItem("Authorization")) {
-      // 判断是否存在token，如果存在的话，则每个http header都加上token
-      config.headers.Authorization = localStorage.getItem("Authorization");
+    let userData = JSON.parse(localStorage.getItem('userData'));
+    //判断用户是否已完成登录
+    if(userData && userData.userId){
+      if (userData.authToken) {
+        // 判断是否存在token，如果存在的话，则每个http header都加上token
+        config.headers.Authorization = userData.authToken;
+      }
     }
     return config;
   },
@@ -49,25 +53,16 @@ function responseReturn(response) {
   let res = response.data;
   if (res.code == '200') {
     return res;
-  } else if (res.code == '1000') {
-    //系统错误（用户token值过期，提示用户重新登录）;
+  } else if (res.code == '1100' || res.code == '2010') {
+    //用户token值过期，提示用户重新登录;
     Vue.$vux.toast.text('请重新登录');
     //清理用户信息，保留手机号码存储
     let userData = {};
     let user = JSON.parse(window.localStorage.getItem('userData'));
     userData.phone = user.phone;
-    window.localStorage.setItem('orderData',JSON.stringify(userData));
-    router.push('/login');
+    window.localStorage.setItem('userData',JSON.stringify(userData));
+    router.replace('/login');
     window.sessionStorage.clear();
-    // // 用户端登录丢失
-    // let appointProjectCode = window.localStorage.getItem('appointProjectCode');
-    // window.sessionStorage.clear();
-    //  router.replace({
-    //    path: '/login/' + appointProjectCode
-    //  });
-    //
-    //  window.sessionStorage.clear();
-    //  window.localStorage.clear();
     return res;
   } else {
     Vue.$vux.toast.text(res.message);
@@ -103,7 +98,7 @@ export function sendHttp(obj) {
       }
     } else {
       let datas = data;
-      console.log(datas)
+      //console.log(datas)
       if (stringify) {
         datas = Qs.stringify(data);
       }

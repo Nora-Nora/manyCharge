@@ -43,7 +43,7 @@
     created() {
       //获取用户信息存储
       let userData = JSON.parse(window.localStorage.getItem('userData'));
-      if(userData){
+      if(userData && userData.userId!==null){
         this.userData = userData;
         let deviceSN = userData.deviceSN;
         this.$store.state.deviceSN = deviceSN;
