@@ -16,7 +16,7 @@
 </template>
 
 <script>
-  import btn from '@/components/btn'
+    import btn from '@/components/btn'
 
     export default {
         name: "paySuccess",
@@ -31,20 +31,12 @@
         created() {
             //判断用户是否已完成支付
             this.checkOrder();
-            //获取订单信息
-            let orderData = JSON.parse(window.sessionStorage.getItem('orderData'));
-            if (orderData) {
-                this.orderData = orderData;
-            } else {
-                this.$router.push({path: '/'});
-            }
-
         },
         methods: {
             //订单时候异常
             checkOrder() {
                 let userData = JSON.parse(window.localStorage.getItem('userData'));
-                if (userData.userId!==null || userData.userId!==undefined ) {
+                if (userData && (userData.userId !== null || userData.userId !== undefined)) {
                     let id = userData.userId;
                     this.sendHttp({
                         url: this.baseUrl + '/order/getUnfinishedOrder', method: 'get', data: {
@@ -52,11 +44,16 @@
                         }
                     }).then(res => {
                         if (res.code == '200') {
-                            if (res.data.orderInfo) {
-                                let type = res.data.orderInfo.type;
+                            if (res.data.haveOrder) {
+                                let orderData = res.data.orderInfo;
+                                window.sessionStorage.setItem('orderData',JSON.stringify(orderData));
+                                this.orderData = orderData;
+                                let type = orderData.type;
                                 if (type == 0) {
                                     this.$vux.toast.text('支付取消');
                                     this.$router.push({path: '/'});
+                                } else if(type == 6){
+                                    this.$vux.toast.text('设备异常，请及时取消订单');
                                 }
                             }
                         }
@@ -119,7 +116,8 @@
       color: @themeColor;
       margin-bottom: 291px;
     }
-    .btn{
+
+    .btn {
       position: absolute;
       bottom: 31px;
     }

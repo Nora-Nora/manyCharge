@@ -170,11 +170,11 @@
                             //获取结束时间
                             let dates = new Date();
                             let hour = dates.getHours();
-                            let mimute = dates.getMinutes();
+                            let minutes = dates.getMinutes();
                             let second = dates.getSeconds();
                             let orderData = JSON.parse(window.sessionStorage.getItem('orderData'));
                             if (!orderData.endTime) {
-                                let endTime = hour + ':' + mimute + ':' + second;
+                                let endTime = `${hour<10?'0'+String(hour):hour}:${minutes<10?'0'+String(minutes):minutes}:${second<10?'0'+String(second):second}`;
                                 orderData.endTime = endTime;
                             }
                             //充电时间
@@ -200,8 +200,6 @@
                 window.sessionStorage.setItem('orderData', JSON.stringify(orderData));
                 this.$vux.toast.text('充电结束');
                 this.$router.replace({path: '/chargeDetail/end'});
-                //let userData = JSON.parse(window.localStorage.getItem('userData'));
-                //window.sessionStorage.setItem('userData', JSON.stringify(userData));
             },
             //获取预计充电时长
             getUseTime() {
@@ -219,9 +217,9 @@
                 //获取结束时间
                 let date = new Date();
                 let hour = date.getHours();
-                var mimute = date.getMinutes();
-                var second = date.getSeconds();
-                let endTime = hour + ':' + mimute + ':' + second;
+                let minutes = date.getMinutes();
+                let second = date.getSeconds();
+                let endTime = `${hour<10?'0'+String(hour):hour}:${minutes<10?'0'+String(minutes):minutes}:${second<10?'0'+String(second):second}`;
                 this.orderInfor.endTime = endTime;
                 this.orderInfor.isEnd = true;
                 window.sessionStorage.setItem('orderData', JSON.stringify(this.orderInfor));

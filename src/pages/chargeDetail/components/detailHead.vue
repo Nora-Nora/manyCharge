@@ -15,11 +15,10 @@
         :stroke-width="50"
         class="circleBox"
       >
-<!--        <div class="animateCircle">-->
-<!--          <div class="img1 move1"></div>-->
-<!--          <div class="img2 move2"></div>-->
-<!--          <div class="img3 move3"></div>-->
-<!--        </div>-->
+        <div class="animateCircle" v-show="!orderInfor.isEnd">
+          <div class="img1 move1"></div>
+          <div class="img3 move3"></div>
+        </div>
         <div class="center">
           <p class="text">{{ orderInfor.isEnd?'充电时长':'已充电'}}</p>
           <p class="time">{{ orderInfor.chargeTime?orderInfor.chargeTime:orderMsg.chargeTime }}</p>
@@ -72,6 +71,7 @@
             refresh() {
                 //刷新页面
                 this.reload();
+
             }
         }
     }
@@ -114,23 +114,15 @@
           width: 128px;
           height: 128px;
           position: absolute;
-          top: 0;
-          left: 0;
+          top: -1.5px;
+          left: -1px;
 
           .img1 {
             position: absolute;
             width: 100%;
             height: 100%;
             background: url(~imgUrl/chargeDetail/img1.png) no-repeat center center;
-            background-size: 80%;
-          }
-
-          .img2 {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: url(~imgUrl/chargeDetail/img2.png) no-repeat center center;
-            background-size: 85%;
+            background-size: 82%;
           }
 
           .img3 {
@@ -138,7 +130,7 @@
             width: 100%;
             height: 100%;
             background: url(~imgUrl/chargeDetail/img3.png) no-repeat center center;
-            background-size: 90%;
+            background-size: 110%;
           }
 
           .move1 {
