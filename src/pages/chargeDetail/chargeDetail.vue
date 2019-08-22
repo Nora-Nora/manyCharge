@@ -56,6 +56,7 @@
             this.getUseTime();
             //获取开始时间
             this.getStartTime();
+
         },
         mounted() {
             this.upDateData();
@@ -162,12 +163,33 @@
                 //创建时间转时间戳
                 let createTime = Date.parse(orderData.createTime);
                 //结束时间戳
-                let endTime = Number(createTime) + orderData.orderTime * 60 * 1000;
-                //console.log(createTime);
+                let endTimes = Number(createTime) + orderData.orderTime * 60 * 1000;
                 //获取当前时间戳
                 var timestamp = Date.parse(new Date());
-                //console.log(timestamp);
-
+                //当前时间大于或者等于结束时间时，订单结束
+                if(timestamp>=endTimes){
+                    let dates = new Date();
+                    let hour = dates.getHours();
+                    let minutes = dates.getMinutes();
+                    let second = dates.getSeconds();
+                    //获取当前订单信息
+                    let orderData = JSON.parse(window.sessionStorage.getItem('orderData'));
+                    if (!orderData.endTime) {
+                        let endTime = `${hour < 10 ? '0' + String(hour) : hour}:${minutes < 10 ? '0' + String(minutes) : minutes}:${second < 10 ? '0' + String(second) : second}`;
+                        orderData.endTime = endTime;
+                    }
+                    //充电时间
+                    let chargeHour = Math.floor(Number(orderData.orderTime) / 60);
+                    let chargeMin = Number(orderData.orderTime) % 60;
+                    orderData.chargeTime = `${chargeHour}小时${chargeMin}分`;
+                    //userMoney 充电费用，单位：分
+                    orderData.useMoney = Number(this.orderInfor.money) * 100;
+                    orderData.backMoney = 0;
+                    this.orderInfor = orderData;
+                    window.sessionStorage.setItem('orderData', JSON.stringify(orderData));
+                    this.endInfor();
+                    return false
+                }
 
                 //let userData = JSON.parse(window.localStorage.getItem('userData'));
                 // if (userData && userData.userId) {

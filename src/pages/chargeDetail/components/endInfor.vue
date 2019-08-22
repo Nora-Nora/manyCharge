@@ -104,9 +104,7 @@
         margin: 0 12px;
         display: flex;
         justify-content: space-between;
-        padding: 0 12px;
         line-height: 50px;
-        //border-bottom: 0.5px solid #eee;
         .right{
           line-height: 50px;
           height: 50px;

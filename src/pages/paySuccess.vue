@@ -50,11 +50,13 @@
                                 this.orderData = orderData;
                                 let type = orderData.type;
                                 if (type == 0) {
-                                    this.$vux.toast.text('支付取消');
+                                    this.$vux.toast.text('支付已取消');
                                     this.$router.push({path: '/'});
                                 } else if(type == 6){
                                     this.$vux.toast.text('设备异常，请及时取消订单');
                                 }
+                            }else{
+                                this.$router.push({path: '/'});
                             }
                         }
                     });

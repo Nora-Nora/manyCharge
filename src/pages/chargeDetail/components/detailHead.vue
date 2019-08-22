@@ -1,8 +1,5 @@
 <template>
   <div class="detailHead">
-    <g>
-
-    </g>
     <div class="left">
       <van-circle
         v-model="currentRate"
@@ -71,7 +68,23 @@
             refresh() {
                 //刷新页面
                 this.reload();
-
+                //判断当前订单是否已结束
+                // let userData = JSON.parse(window.localStorage.getItem('userData'));
+                // if (userData && userData.authToken) {
+                //     this.sendHttp({
+                //         url: this.baseUrl + '/order/getUnfinishedOrder', method: 'get', data: {
+                //             id: userData.userId
+                //         }
+                //     }).then(res => {
+                //         let orderData = JSON.parse(window.sessionStorage.getItem('orderData'));
+                //         if (res.data.haveOrder) {
+                //             orderData.isEnd = false;
+                //         } else {
+                //             orderData.isEnd = true;
+                //         }
+                //         window.sessionStorage.setItem('orderData',JSON.stringify(orderData));
+                //     });
+                // }
             }
         }
     }

@@ -3,7 +3,7 @@
     <form action="#">
       <div class="phoneNum">
         <span class="checkText">手机号码</span><br>
-        <input type="number" v-model="phoneNum" v-focus>
+        <input type="number" v-model="userData.phone" v-focus>
       </div>
       <div class="checkCode">
         <span class="checkText">短信验证</span><br>
@@ -22,7 +22,7 @@
         data() {
             return {
                 isClick: true,
-                phoneNum: '',
+                //phoneNum: '',
                 timeMsg: 59,
                 yzCode: '',
                 //第一次扫描充电桩二维码sn信息
@@ -30,13 +30,7 @@
                 submitStatus: false
             }
         },
-        created() {
-            //获取内存手机号
-            let phone = JSON.parse(window.localStorage.getItem('phone'));
-            if (phone) {
-                this.phoneNum = phone;
-            }
-        },
+        props:['userData'],
         updated() {
             if (this.yzCode !== '') {
                 this.submitStatus = true;
@@ -61,12 +55,12 @@
                         //请求登录
                         this.sendHttp({
                             url: this.baseUrl + '/index/login', method: 'post', data: {
-                                deviceSN: this.deviceSN, phone: this.phoneNum, code: this.yzCode
+                                deviceSN: this.deviceSN, phone: this.userData.phone, code: this.yzCode
                             }
                         }).then(res => {
                             if (res.code == '200') {
                                 //console.log(res);
-                                that.phoneNum = res.data.phone;
+                                this.userData.phone= res.data.phone;
                                 //存储用户登录信息到localStorage
                                 let userData = res.data;
                                 window.localStorage.setItem('userData', JSON.stringify(userData));
@@ -128,7 +122,7 @@
             },
             //验证手机号
             checkPhone() {
-                if (!/^1(3|4|5|7|8|9)[0-9]{9}$/.test(this.phoneNum)) {
+                if (!/^1(3|4|5|7|8|9)[0-9]{9}$/.test(this.userData.phone)) {
                     this.$vux.toast.text('手机号输入有误');
                     return false
                 } else {
@@ -146,8 +140,9 @@
                     this.sendHttp({
                         url: this.baseUrl + '/index/sendSMS',
                         method: 'get',
-                        data: {phone: this.phoneNum}
+                        data: {phone: this.userData.phone}
                     }).then(res => {
+                        console.log(res);
                         if (res.code == 200) {
                             //console.log('发送成功！');
                         }

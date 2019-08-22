@@ -38,7 +38,6 @@
             },
             //刷新页面
             refresh() {
-                //this.reload();
                 let userData = JSON.parse(window.localStorage.getItem('userData'));
                 if (userData && userData.deviceSN) {
                     let deviceSN = userData.deviceSN;

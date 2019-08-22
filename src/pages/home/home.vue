@@ -75,7 +75,6 @@
                         methods: 'get',
                         data: {'deviceSN': deviceSN}
                     }).then(res => {
-                        //console.log(res);
                         if (res.code == '200') {
                             that.equipmentInfor = res.data;
                             that.equipmentInfor.chargingVOList = res.data.chargingVOList;

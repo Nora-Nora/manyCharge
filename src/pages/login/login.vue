@@ -2,7 +2,7 @@
   <div class="login">
     <div class="loginBox">
       <login-head/>
-      <phone-check/>
+      <phone-check :userData="userData"/>
     </div>
   </div>
 </template>
@@ -24,13 +24,15 @@
         },
         created() {
             let userData = JSON.parse(window.localStorage.getItem('userData'));
+            let phone = JSON.parse(window.localStorage.getItem('phone'));
             if(userData){
+                this.userData.phone = userData.phone;
                 if(userData.userId){
                     this.userData = userData;
-                    window.localStorage.setItem('phone',userData.phone);
                     this.$router.push({path: '/'});
-
                 }
+            }else if(phone){
+                this.userData.phone = phone;
             }
         }
     }
