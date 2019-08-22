@@ -132,8 +132,7 @@
                                                 money: moneyFen,
                                                 useTime: time,
                                                 payType: this.payType,
-                                                phone: this.userData.phone,
-                                                token: this.userData.authToken
+                                                phone: this.userData.phone
                                             }
                                         }).then(res => {
                                             if (res.code == '200') {

@@ -34,8 +34,8 @@
             //获取内存手机号
             let phone = JSON.parse(window.localStorage.getItem('phone'));
             if (phone) {
-                    this.phoneNum = phone;
-                }
+                this.phoneNum = phone;
+            }
         },
         updated() {
             if (this.yzCode !== '') {
@@ -67,12 +67,13 @@
                             if (res.code == '200') {
                                 //console.log(res);
                                 that.phoneNum = res.data.phone;
-                                //存储用户登录信息到session
+                                //存储用户登录信息到localStorage
                                 let userData = res.data;
                                 window.localStorage.setItem('userData', JSON.stringify(userData));
                                 //获取用户未完成订单
                                 this.sendHttp({
-                                    url: this.baseUrl + '/order/getUnfinishedOrder', method: 'post', data: {
+                                    url: this.baseUrl + '/order/getUnfinishedOrder', method: 'post',
+                                    data: {
                                         id: userData.userId
                                     }
                                 }).then(res => {
@@ -138,7 +139,7 @@
             sendCode() {
                 //点击获取验证码之后，就使按钮转为已点击状态，静止用户多次点击。
                 //先判断当前页面获取验证码用户是否已点击
-                if(this.isClick == true){
+                if (this.isClick == true) {
                     this.isClick = false;
                     this.timeDown();
                     this.$vux.toast.text('发送成功！');

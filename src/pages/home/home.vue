@@ -23,68 +23,69 @@
 </template>
 
 <script>
-  import homeHead from './components/homeHead'
-  import rechargeSelect from './components/rechargeSelect'
-  import chargeNum from './components/chargeNum'
-  import payWay from './components/payWay'
-  import chargeSuggest from './components/chargeSuggest'
-  import popBox from '../../components/popBox'
+    import homeHead from './components/homeHead'
+    import rechargeSelect from './components/rechargeSelect'
+    import chargeNum from './components/chargeNum'
+    import payWay from './components/payWay'
+    import chargeSuggest from './components/chargeSuggest'
+    import popBox from '../../components/popBox'
 
-  export default {
-    name: "home",
-    components: {
-      homeHead,
-      rechargeSelect,
-      chargeNum,
-      payWay,
-      chargeSuggest,
-      popBox
-    },
-    created() {
-      //获取用户信息存储
-      let userData = JSON.parse(window.localStorage.getItem('userData'));
-      if(userData && userData.userId!==null){
-        this.userData = userData;
-        let deviceSN = userData.deviceSN;
-        this.$store.state.deviceSN = deviceSN;
-        this.getEquipmentInfor(deviceSN);
-      }else{
-        this.$router.push({path:'/login'});
-      }
-    },
-    updated() {
-
-    },
-    data() {
-      return {
-        userData: {},
-        equipmentInfor: {},
-      }
-    },
-
-    methods: {
-      hidePop() {
-        this.$store.state.chargeBreakPop = false;
-      },
-      getEquipmentInfor(deviceSN) {
-        const that = this;
-        if (deviceSN) {
-          this.sendHttp({
-            url: that.baseUrl + '/device/getDeviceInfo',
-            methods: 'get',
-            data: {'deviceSN': deviceSN}
-          }).then(res => {
-            //console.log(res);
-            if (res.code == '200') {
-              that.equipmentInfor = res.data;
-              that.equipmentInfor.chargingVOList = res.data.chargingVOList;
-              //console.log(this.equipmentInfor.chargingVOList);
+    export default {
+        name: "home",
+        components: {
+            homeHead,
+            rechargeSelect,
+            chargeNum,
+            payWay,
+            chargeSuggest,
+            popBox
+        },
+        created() {
+            //获取用户信息存储
+            let userData = JSON.parse(window.localStorage.getItem('userData'));
+            if (userData && userData.userId !== null) {
+                this.userData = userData;
+                let deviceSN = userData.deviceSN;
+                this.$store.state.deviceSN = deviceSN;
+                this.getEquipmentInfor(deviceSN);
+            } else {
+                this.$vux.toast.text('请重新登录');
+                this.$router.push({path: '/login'});
             }
-          });
+        },
+        updated() {
+
+        },
+        data() {
+            return {
+                userData: {},
+                equipmentInfor: {},
+            }
+        },
+
+        methods: {
+            hidePop() {
+                this.$store.state.chargeBreakPop = false;
+            },
+            getEquipmentInfor(deviceSN) {
+                const that = this;
+                if (deviceSN) {
+                    this.sendHttp({
+                        url: that.baseUrl + '/device/getDeviceInfo',
+                        methods: 'get',
+                        data: {'deviceSN': deviceSN}
+                    }).then(res => {
+                        //console.log(res);
+                        if (res.code == '200') {
+                            that.equipmentInfor = res.data;
+                            that.equipmentInfor.chargingVOList = res.data.chargingVOList;
+                            //console.log(this.equipmentInfor.chargingVOList);
+                        }
+                    });
+                }
+            }
         }
-      }
     }
-  }
 </script>
 
 <style scoped lang="less">

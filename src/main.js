@@ -28,7 +28,7 @@ Vue.directive('focus', {
 });
 
 //测试环境
-//Vue.prototype.baseUrl = 'http://192.168.5.8:12402';
+//Vue.prototype.baseUrl = 'http://192.168.5.131:12402';
 //生产环境
 Vue.prototype.baseUrl = 'http://api.share.duoduiduo.com';
 

@@ -157,40 +157,52 @@
             },
             //获取订单是否已完成充电
             ChargeFinish() {
-                let userData = JSON.parse(window.localStorage.getItem('userData'));
-                if (userData && userData.userId) {
-                    this.sendHttp({
-                        url: this.baseUrl + '/order/getUnfinishedOrder', method: 'get', data: {
-                            id: userData.userId
-                        }
-                    }).then(res => {
-                        if (res.data.haveOrder) {
-                            return true
-                        } else {
-                            //获取结束时间
-                            let dates = new Date();
-                            let hour = dates.getHours();
-                            let minutes = dates.getMinutes();
-                            let second = dates.getSeconds();
-                            let orderData = JSON.parse(window.sessionStorage.getItem('orderData'));
-                            if (!orderData.endTime) {
-                                let endTime = `${hour<10?'0'+String(hour):hour}:${minutes<10?'0'+String(minutes):minutes}:${second<10?'0'+String(second):second}`;
-                                orderData.endTime = endTime;
-                            }
-                            //充电时间
-                            let chargeHour = Math.floor(Number(orderData.orderTime) / 60);
-                            let chargeMin = Number(orderData.orderTime) % 60;
-                            orderData.chargeTime = `${chargeHour}小时${chargeMin}分`;
-                            //userMoney 充电费用，单位：分
-                            orderData.useMoney = Number(this.orderInfor.money) * 100;
-                            orderData.backMoney = 0;
-                            this.orderInfor = orderData;
-                            window.sessionStorage.setItem('orderData', JSON.stringify(orderData));
-                            this.endInfor();
-                            return false
-                        }
-                    });
-                }
+                //获取订单信息
+                let orderData = JSON.parse(window.sessionStorage.getItem('orderData'));
+                //创建时间转时间戳
+                let createTime = Date.parse(orderData.createTime);
+                //结束时间戳
+                let endTime = Number(createTime) + orderData.orderTime * 60 * 1000;
+                //console.log(createTime);
+                //获取当前时间戳
+                var timestamp = Date.parse(new Date());
+                //console.log(timestamp);
+
+
+                //let userData = JSON.parse(window.localStorage.getItem('userData'));
+                // if (userData && userData.userId) {
+                //     this.sendHttp({
+                //         url: this.baseUrl + '/order/getUnfinishedOrder', method: 'get', data: {
+                //             id: userData.userId
+                //         }
+                //     }).then(res => {
+                //         if (res.data.haveOrder) {
+                //             return true
+                //         } else {
+                //             //获取结束时间
+                //             let dates = new Date();
+                //             let hour = dates.getHours();
+                //             let minutes = dates.getMinutes();
+                //             let second = dates.getSeconds();
+                //             let orderData = JSON.parse(window.sessionStorage.getItem('orderData'));
+                //             if (!orderData.endTime) {
+                //                 let endTime = `${hour<10?'0'+String(hour):hour}:${minutes<10?'0'+String(minutes):minutes}:${second<10?'0'+String(second):second}`;
+                //                 orderData.endTime = endTime;
+                //             }
+                //             //充电时间
+                //             let chargeHour = Math.floor(Number(orderData.orderTime) / 60);
+                //             let chargeMin = Number(orderData.orderTime) % 60;
+                //             orderData.chargeTime = `${chargeHour}小时${chargeMin}分`;
+                //             //userMoney 充电费用，单位：分
+                //             orderData.useMoney = Number(this.orderInfor.money) * 100;
+                //             orderData.backMoney = 0;
+                //             this.orderInfor = orderData;
+                //             window.sessionStorage.setItem('orderData', JSON.stringify(orderData));
+                //             this.endInfor();
+                //             return false
+                //         }
+                //     });
+                // }
             },
             //订单结束
             endInfor() {
@@ -219,7 +231,7 @@
                 let hour = date.getHours();
                 let minutes = date.getMinutes();
                 let second = date.getSeconds();
-                let endTime = `${hour<10?'0'+String(hour):hour}:${minutes<10?'0'+String(minutes):minutes}:${second<10?'0'+String(second):second}`;
+                let endTime = `${hour < 10 ? '0' + String(hour) : hour}:${minutes < 10 ? '0' + String(minutes) : minutes}:${second < 10 ? '0' + String(second) : second}`;
                 this.orderInfor.endTime = endTime;
                 this.orderInfor.isEnd = true;
                 window.sessionStorage.setItem('orderData', JSON.stringify(this.orderInfor));
@@ -234,14 +246,11 @@
                     let orderData = JSON.parse(window.sessionStorage.getItem('orderData'));
                     let orderNum = orderData.orderNum;
                     let money = Number(orderData.money) * 100;
-                    //获取内存中用户token
-                    let userData = JSON.parse(window.localStorage.getItem('userData'));
-                    let token = userData.authToken;
+                    //发起请求
                     this.sendHttp({
                         url: this.baseUrl + '/order/refundOrderByWechat', method: 'post', data: {
                             orderNum: orderNum,
-                            money: money,
-                            token: token
+                            money: money
                         }
                     }).then(res => {
                         //console.log(res);
