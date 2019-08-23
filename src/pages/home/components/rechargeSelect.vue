@@ -46,8 +46,6 @@
                     this.$store.state.chargingId = 0;
                     this.$store.state.chargingNum = 0;
                 }
-
-
             }
         }
 

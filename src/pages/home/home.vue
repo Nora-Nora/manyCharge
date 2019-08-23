@@ -19,6 +19,13 @@
         <div class="button" @click="hidePop">好的</div>
       </div>
     </pop-box>
+<!--    <div class="isSuc" v-show="true">-->
+<!--      <div class="isSucBox">-->
+<!--        <p class="qus">请确认微信支付是否已完成</p>-->
+<!--        <p class="yes" @click="paySuc">已完成支付</p>-->
+<!--        <p class="no" @click="!this.$store.state.payPop">支付遇到问题，重新支付</p>-->
+<!--      </div>-->
+<!--    </div>-->
   </div>
 </template>
 
@@ -40,10 +47,17 @@
             chargeSuggest,
             popBox
         },
+        data() {
+            return {
+                userData: {},
+                equipmentInfor: {},
+                payPop: this.$store.state.payPop
+            }
+        },
         created() {
             //获取用户信息存储
             let userData = JSON.parse(window.localStorage.getItem('userData'));
-            if (userData && userData.userId !== null) {
+            if (userData && userData.deviceSN !== undefined) {
                 this.userData = userData;
                 let deviceSN = userData.deviceSN;
                 this.$store.state.deviceSN = deviceSN;
@@ -56,17 +70,41 @@
         updated() {
 
         },
-        data() {
-            return {
-                userData: {},
-                equipmentInfor: {},
-            }
-        },
-
         methods: {
             hidePop() {
                 this.$store.state.chargeBreakPop = false;
             },
+            //判断支付是否成功
+            // paySuc() {
+            //     this.$store.state.payPop = false;
+            //     let userData = JSON.parse(window.localStorage.getItem('userData'));
+            //     if (userData && (userData.userId !== null || userData.userId !== undefined)) {
+            //         let id = userData.userId;
+            //         this.sendHttp({
+            //             url: this.baseUrl + '/order/getUnfinishedOrder', method: 'get', data: {
+            //                 id: id
+            //             }
+            //         }).then(res => {
+            //             if (res.code == '200') {
+            //                 if (res.data.haveOrder) {
+            //                     let orderData = res.data.orderInfo;
+            //                     window.sessionStorage.setItem('orderData', JSON.stringify(orderData));
+            //                     this.orderData = orderData;
+            //                     let type = orderData.type;
+            //                     if (type == 6) {
+            //                         this.$vux.toast.text('设备异常，请及时取消订单');
+            //                         this.$router.push({path: '/chargeDetail/infor'});
+            //                     } else if (type == 4) {
+            //                         this.$router.push({path: '/paySuc'});
+            //                     }
+            //                 } else {
+            //                     this.$router.push({path: '/'});
+            //                 }
+            //             }
+            //         });
+            //     }
+            //
+            // },
             getEquipmentInfor(deviceSN) {
                 const that = this;
                 if (deviceSN) {
@@ -97,6 +135,45 @@
       width: 351px;
       margin: 0 auto;
     }
+
+    /*.isSuc {*/
+    /*  position: fixed;*/
+    /*  top: 0;*/
+    /*  left: 0;*/
+    /*  z-index: 1000;*/
+    /*  width: 100%;*/
+    /*  height: 100%;*/
+    /*  background: rgba(0, 0, 0, 0.5);*/
+    /*  display: flex;*/
+    /*  justify-content: center;*/
+    /*  align-items: center;*/
+
+    /*  .isSucBox {*/
+    /*    width: 245px;*/
+    /*    background: #fff;*/
+    /*    border-radius: 4px;*/
+    /*    text-align: center;*/
+    /*    font-size: 16px;*/
+
+    /*    p {*/
+    /*      padding: 12px 0;*/
+    /*      border-top: 1px solid #DADADA;*/
+    /*    }*/
+
+    /*    p.qus {*/
+    /*      border: none;*/
+    /*      padding: 20px 0;*/
+    /*    }*/
+
+    /*    p.yes {*/
+    /*      color: #EB4158;*/
+    /*    }*/
+
+    /*    p.no {*/
+    /*      color: #8c8c8c;*/
+    /*    }*/
+    /*  }*/
+    /*}*/
   }
 
   .tipContent {

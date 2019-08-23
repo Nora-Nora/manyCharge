@@ -78,10 +78,8 @@
                                             let orderData = res.data.orderInfo;
                                             if (orderData.type === 0) {
                                                 this.$vux.toast.text('存在未付款的订单');
-                                                let redirect_url = this.hostName + "/#/paySuc";
-                                                let url = encodeURIComponent(redirect_url);
                                                 setTimeout(function () {
-                                                    window.location.href = orderData.webUrl + "&redirect_url=" + url;
+                                                    window.location.href = orderData.webUrl;
                                                 }, 1000);
                                             } else {
                                                 if (orderData.type === 4) {

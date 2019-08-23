@@ -27,41 +27,6 @@
             return {
                 orderData: {}
             }
-        },
-        created() {
-            //判断用户是否已完成支付
-            this.checkOrder();
-        },
-        methods: {
-            //订单时候异常
-            checkOrder() {
-                let userData = JSON.parse(window.localStorage.getItem('userData'));
-                if (userData && (userData.userId !== null || userData.userId !== undefined)) {
-                    let id = userData.userId;
-                    this.sendHttp({
-                        url: this.baseUrl + '/order/getUnfinishedOrder', method: 'get', data: {
-                            id: id
-                        }
-                    }).then(res => {
-                        if (res.code == '200') {
-                            if (res.data.haveOrder) {
-                                let orderData = res.data.orderInfo;
-                                window.sessionStorage.setItem('orderData',JSON.stringify(orderData));
-                                this.orderData = orderData;
-                                let type = orderData.type;
-                                if (type == 0) {
-                                    this.$vux.toast.text('支付已取消');
-                                    this.$router.push({path: '/'});
-                                } else if(type == 6){
-                                    this.$vux.toast.text('设备异常，请及时取消订单');
-                                }
-                            }else{
-                                this.$router.push({path: '/'});
-                            }
-                        }
-                    });
-                }
-            }
         }
     }
 </script>

@@ -14,6 +14,7 @@
     <btn>
       <div @click="isPay">确认支付</div>
     </btn>
+
     <remote-js src="http://pv.sohu.com/cityjson?ie=utf-8"></remote-js>
   </div>
 </template>
@@ -68,20 +69,17 @@
                                     id: userData.userId
                                 }
                             }).then(res => {
-                                if (res.data.haveOrder && res.code=='200') {
+                                if (res.data.haveOrder && res.code == '200') {
                                     let orderInfo = res.data.orderInfo;
                                     orderInfo.money = Number(orderInfo.money);
                                     orderInfo.isEnd = false;
-                                    window.sessionStorage.setItem('orderData',JSON.stringify(orderInfo));
+                                    window.sessionStorage.setItem('orderData', JSON.stringify(orderInfo));
                                     //有未支付的订单
                                     if (orderInfo.type === 0) {
                                         this.$vux.toast.text('存在未付款的订单');
                                         let webUrl = orderInfo.webUrl;
-                                        let hostName = this.hostName;
-                                        let url = hostName + '/#/paySuc';
-                                        let newUrl = encodeURIComponent(url);
                                         setTimeout(function () {
-                                            window.location.href = webUrl + '&redirect_url=' + newUrl;
+                                            window.location.href = webUrl;
                                         }, 1000);
                                     } else {
                                         if (orderInfo.type === 4) {
@@ -144,7 +142,7 @@
                                                 let orderData = {};
                                                 orderData.createTime = res.data.createTime; //创建时间
                                                 orderData.deviceNum = this.equipmentInfor.deviceNum; //设备编号
-                                                orderData.money = Number(moneyFen)/100;  //订单金额 单位：元
+                                                orderData.money = Number(moneyFen) / 100;  //订单金额 单位：元
                                                 orderData.orderLocation = this.equipmentInfor.deviceLocation;
                                                 orderData.orderNum = this.orderNum;  //订单编号
                                                 orderData.orderTime = time; //预计使用时长
@@ -153,11 +151,8 @@
                                                 orderData.isEnd = false;
                                                 orderData.chargingAddr = this.$store.state.chargingNum;
                                                 window.sessionStorage.setItem('orderData', JSON.stringify(orderData));
-                                                //微信支付成功的回调地址
-                                                let redirect_url = this.hostName + "/#/paySuc";
-                                                let url = encodeURIComponent(redirect_url);
                                                 //普通浏览器打开
-                                                window.location.href = data.mweb_url + "&redirect_url=" + url;
+                                                window.location.href = data.mweb_url;
                                             }
                                         });
                                     }
