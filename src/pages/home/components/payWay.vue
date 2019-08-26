@@ -14,6 +14,14 @@
     <btn>
       <div @click="isPay">确认支付</div>
     </btn>
+    <tips v-slot:tipContent v-show="this.$store.state.homeTip">
+      <div class="tipContent">
+        <div class="text">{{ toastMsg }}</div>
+        <ul>
+          <li class="sure" @click="orderDetail">查看订单</li>
+        </ul>
+      </div>
+    </tips>
 
     <remote-js src="http://pv.sohu.com/cityjson?ie=utf-8"></remote-js>
   </div>
@@ -21,6 +29,7 @@
 
 <script>
     import btn from '@/components/btn'
+    import tips from '@/components/popBox'
 
     export default {
         name: "payWay",
@@ -29,12 +38,15 @@
                 payType: 0,
                 userIp: '',
                 orderNum: '',
-                isWeixin: false
+                isWeixin: false,
+                tipsPop: this.$store.state.homeTip,
+                toastMsg: ''
             }
         },
         created() {
         },
         components: {
+            tips,
             btn,
             //获取用户ip
             'remote-js': {
@@ -48,6 +60,11 @@
         },
         props: ['equipmentInfor', 'userData'],
         methods: {
+            orderDetail() {
+                this.$store.state.homeTip = false;
+                this.$router.push({path: '/chargeDetail/infor'});
+
+            },
             //获取支付方式
             paySelect(num) {
                 this.payType = num;
@@ -77,20 +94,18 @@
                                     //有未支付的订单
                                     if (orderInfo.type === 0) {
                                         this.$vux.toast.text('存在未付款的订单');
-                                        let webUrl = orderInfo.webUrl;
-                                        setTimeout(function () {
-                                            window.location.href = webUrl;
-                                        }, 1000);
+                                        this.$router.push({path: '/payWait/new'});
                                     } else {
                                         if (orderInfo.type === 4) {
                                             //充电桩正在使用，还未结束订单
-                                            this.$vux.toast.text('存在未结束订单');
+                                            this.$store.state.homeTip = true;
+                                            this.toastMsg = '目前您还有未完成的订单';
                                         } else if (orderInfo.type === 6) {
                                             //设备异常
                                             this.$vux.toast.text('设备异常，请及时取消订单');
                                         }
                                         window.sessionStorage.setItem('orderData', JSON.stringify(orderInfo));
-                                        this.$router.push({path: '/chargeDetail/infor'});
+                                        //this.$router.push({path: '/chargeDetail/infor'});
                                         //console.log(orderInfo.type);
                                     }
                                 } else {
@@ -140,6 +155,7 @@
                                                 this.orderNum = data.orderNum;
                                                 //创建orderData存储
                                                 let orderData = {};
+                                                orderData.webUrl = data.mweb_url;
                                                 orderData.createTime = res.data.createTime; //创建时间
                                                 orderData.deviceNum = this.equipmentInfor.deviceNum; //设备编号
                                                 orderData.money = Number(moneyFen) / 100;  //订单金额 单位：元
@@ -151,8 +167,7 @@
                                                 orderData.isEnd = false;
                                                 orderData.chargingAddr = this.$store.state.chargingNum;
                                                 window.sessionStorage.setItem('orderData', JSON.stringify(orderData));
-                                                //普通浏览器打开
-                                                window.location.href = data.mweb_url;
+                                                this.$router.push({path: '/payWait/new'});
                                             }
                                         });
                                     }
@@ -212,7 +227,6 @@
                     },
                     function (res) {
                         if (res.err_msg === 'get_brand_wcpay_request:ok') {//支付成功
-                            //self.$vux.toast.text('支付成功!');
                             self.$router.replace({name: 'paySuc'});
                         } else if (res.err_msg === 'get_brand_wcpay_request:cancel') {
                             self.$vux.toast.text('支付取消!');
@@ -228,6 +242,46 @@
 
 <style scoped lang="less">
   @import "~@/assets/style/common.less";
+
+  .tipContent {
+    font-size: 16px;
+    text-align: center;
+
+    .text {
+      padding-top: 80px;
+      padding-bottom: 48px;
+    }
+
+    ul {
+      margin: 0 24px;
+      height: 48px;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
+
+      li {
+        width: 260px;
+        line-height: 48px;
+        border-radius: 4px;
+
+        &.cancel {
+          border: 1px solid @themeColor;
+          color: @themeColor;
+        }
+
+        &.sure {
+          background: @themeColor;
+
+          a {
+            display: block;
+            width: 100%;
+            height: 100%;
+            color: #fff;
+          }
+        }
+      }
+    }
+  }
 
   .payWay {
     .title {

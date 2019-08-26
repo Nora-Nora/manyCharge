@@ -14,6 +14,12 @@
       hidePop(){
         this.$store.state.cancelChargePop = false;
         this.$store.state.chargeBreakPop = false;
+        if(this.$route.name=='login'){
+            this.$router.push({path:'/'});
+        }
+          if(this.$route.name=='home'){
+              this.$store.state.homeTip = false;
+          }
       }
     }
   }

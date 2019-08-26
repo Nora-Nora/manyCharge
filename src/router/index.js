@@ -6,6 +6,8 @@ import paySuc from '@/pages/paySuccess'
 import chargeDetail from '@/pages/chargeDetail/chargeDetail'
 import detailInfor from '@/pages/chargeDetail/components/detailInfor'
 import endDetail from '@/pages/chargeDetail/components/endInfor'
+import payWait from '@/pages/chargeDetail/payWait'
+
 Vue.use(Router)
 
 export default new Router({
@@ -46,6 +48,12 @@ export default new Router({
           component:endDetail
         }
       ]
+    },
+    //待支付
+    {
+      path:'/payWait/:from',
+      name:'payWait',
+      component:payWait
     }
   ]
 })

@@ -27,6 +27,13 @@
             return {
                 orderData: {}
             }
+        },
+        created() {
+            let orderData = JSON.parse(window.sessionStorage.getItem('orderData'));
+            if (orderData) {
+                this.orderData = orderData;
+            }
+
         }
     }
 </script>

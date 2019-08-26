@@ -12,6 +12,8 @@ export default new Vuex.Store({
     cancelChargePop: false,
     //充电桩故障弹出状态
     chargeBreakPop: false,
+    //首页弹框显示
+    homeTip:false,
     //充值金额
     chargeMoney: 0,
     //支付方式

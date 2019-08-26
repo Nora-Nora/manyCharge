@@ -13,12 +13,24 @@
       </div>
       <input type="button" :class="{active:submitStatus}" id="submit" value="登录" @click="loginOn">
     </form>
+    <tips v-slot:tipContent v-show="tipsPop">
+      <div class="tipContent">
+        <div class="text">{{toastMsg}}</div>
+        <ul>
+          <li class="sure"><router-link to="/payWait/new">查看订单</router-link></li>
+        </ul>
+      </div>
+    </tips>
   </div>
 </template>
 
 <script>
+  import tips from '@/components/popBox'
     export default {
         name: "phoneCheck",
+        components:{
+            tips
+        },
         data() {
             return {
                 isClick: true,
@@ -27,10 +39,12 @@
                 yzCode: '',
                 //第一次扫描充电桩二维码sn信息
                 deviceSN: this.$store.state.deviceSN,
-                submitStatus: false
+                submitStatus: false,
+                tipsPop:false,
+                toastMsg:''
             }
         },
-        props:['userData'],
+        props: ['userData'],
         updated() {
             if (this.yzCode !== '') {
                 this.submitStatus = true;
@@ -60,7 +74,7 @@
                         }).then(res => {
                             if (res.code == '200') {
                                 //console.log(res);
-                                this.userData.phone= res.data.phone;
+                                this.userData.phone = res.data.phone;
                                 //存储用户登录信息到localStorage
                                 let userData = res.data;
                                 window.localStorage.setItem('userData', JSON.stringify(userData));
@@ -76,11 +90,10 @@
                                         if (res.data.haveOrder) {
                                             //有未完成支付的订单
                                             let orderData = res.data.orderInfo;
+                                            window.sessionStorage.setItem('orderData',JSON.stringify(orderData));
                                             if (orderData.type === 0) {
-                                                this.$vux.toast.text('存在未付款的订单');
-                                                setTimeout(function () {
-                                                    window.location.href = orderData.webUrl;
-                                                }, 1000);
+                                                this.tipsPop = true;
+                                                this.toastMsg = '目前您还有未完成的订单';
                                             } else {
                                                 if (orderData.type === 4) {
                                                     //充电桩正在使用
@@ -155,6 +168,44 @@
 <style scoped lang="less">
   @import "~@/assets/style/common.less";
 
+  .tipContent {
+    font-size: 16px;
+    text-align: center;
+
+    .text {
+      padding-top: 80px;
+      padding-bottom: 48px;
+    }
+
+    ul {
+      margin: 0 24px;
+      height: 48px;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
+
+      li {
+        width: 260px;
+        line-height: 48px;
+        border-radius: 4px;
+
+        &.cancel {
+          border: 1px solid @themeColor;
+          color: @themeColor;
+        }
+
+        &.sure {
+          background: @themeColor;
+          a{
+            display: block;
+            width: 100%;
+            height: 100%;
+            color: #fff;
+          }
+        }
+      }
+    }
+  }
   .phoneCheck {
     color: #8D95A6;
     font-size: 14px;
